@@ -322,8 +322,8 @@ public:
 		// Spheres
 		std::vector<Sphere> spheres;
 		spheres.push_back(newSphere(glm::vec3(1.75f, -0.5f, 0.0f), 1.0f, glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
-		spheres.push_back(newSphere(glm::vec3(0.0f, 1.0f, -0.5f), 1.0f, glm::vec3(0.65f, 0.77f, 0.97f), 32.0f));
-		spheres.push_back(newSphere(glm::vec3(-1.75f, -0.75f, -0.5f), 1.25f, glm::vec3(0.9f, 0.76f, 0.46f), 32.0f));
+		//spheres.push_back(newSphere(glm::vec3(0.0f, 1.0f, -0.5f), 1.0f, glm::vec3(0.65f, 0.77f, 0.97f), 32.0f));
+		//spheres.push_back(newSphere(glm::vec3(-1.75f, -0.75f, -0.5f), 1.25f, glm::vec3(0.9f, 0.76f, 0.46f), 32.0f));
 		VkDeviceSize storageBufferSize = spheres.size() * sizeof(Sphere);
 
 		// Stage
@@ -352,9 +352,11 @@ public:
 
 		stagingBuffer.destroy();
 
+		#ifdef USE_PLANES
 		// Planes
 		std::vector<Plane> planes;
 		const float roomDim = 4.0f;
+
 		planes.push_back(newPlane(glm::vec3(0.0f, 1.0f, 0.0f), roomDim, glm::vec3(1.0f), 32.0f));
 		planes.push_back(newPlane(glm::vec3(0.0f, -1.0f, 0.0f), roomDim, glm::vec3(1.0f), 32.0f));
 		planes.push_back(newPlane(glm::vec3(0.0f, 0.0f, 1.0f), roomDim, glm::vec3(1.0f), 32.0f));
@@ -385,6 +387,7 @@ public:
 		VulkanExampleBase::flushCommandBuffer(copyCmd, queue, true);
 
 		stagingBuffer.destroy();
+		#endif
 	}
 
 	void setupDescriptorPool()
@@ -567,12 +570,14 @@ public:
 			vks::initializers::descriptorSetLayoutBinding(
 				VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
 				VK_SHADER_STAGE_COMPUTE_BIT,
-				2),
+				2)
+			#ifdef USE_PLANES
 			// Binding 1: Shader storage buffer for the planes
 			vks::initializers::descriptorSetLayoutBinding(
 				VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
 				VK_SHADER_STAGE_COMPUTE_BIT,
 				3)
+			#endif
 		};
 
 		VkDescriptorSetLayoutCreateInfo descriptorLayout =
@@ -616,13 +621,15 @@ public:
 				compute.descriptorSet,
 				VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
 				2,
-				&compute.storageBuffers.spheres.descriptor),
+				&compute.storageBuffers.spheres.descriptor)
 			// Binding 2: Shader storage buffer for the planes
+			#ifdef USE_PLANES
 			vks::initializers::writeDescriptorSet(
 				compute.descriptorSet,
 				VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
 				3,
 				&compute.storageBuffers.planes.descriptor)
+			#endif
 		};
 
 		vkUpdateDescriptorSets(device, computeWriteDescriptorSets.size(), computeWriteDescriptorSets.data(), 0, NULL);
