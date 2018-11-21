@@ -95,6 +95,8 @@ public:
 	{
 		title = "Compute shader ray tracing";
 		settings.overlay = true;
+		viewportWidth = 720.0f;
+		viewportHeight = 720.0f;
 		compute.ubo.aspectRatio = (float)viewportWidth / (float)viewportHeight;
 		timerSpeed *= 0.25f;
 
@@ -269,7 +271,7 @@ public:
 			vkCmdBindPipeline(drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphics.pipeline);
 			vkCmdDraw(drawCmdBuffers[i], 3, 1, 0, 0);
 
-			drawUI(drawCmdBuffers[i]);
+			//drawUI(drawCmdBuffers[i]);
 
 			vkCmdEndRenderPass(drawCmdBuffers[i]);
 
@@ -321,7 +323,7 @@ public:
 	{
 		// Spheres
 		std::vector<Sphere> spheres;
-		spheres.push_back(newSphere(glm::vec3(1.75f, -0.5f, 0.0f), 1.0f, glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
+		spheres.push_back(newSphere(glm::vec3(0.0f, -0.0f, 0.0f), 0.5f, glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
 		//spheres.push_back(newSphere(glm::vec3(0.0f, 1.0f, -0.5f), 1.0f, glm::vec3(0.65f, 0.77f, 0.97f), 32.0f));
 		//spheres.push_back(newSphere(glm::vec3(-1.75f, -0.75f, -0.5f), 1.25f, glm::vec3(0.9f, 0.76f, 0.46f), 32.0f));
 		VkDeviceSize storageBufferSize = spheres.size() * sizeof(Sphere);
@@ -682,6 +684,7 @@ public:
 
 	void updateUniformBuffers()
 	{
+		#if 0
 		compute.ubo.lightPos.x = 0.0f + sin(glm::radians(timer * 360.0f)) * cos(glm::radians(timer * 360.0f)) * 2.0f;
 		compute.ubo.lightPos.y = 0.0f + sin(glm::radians(timer * 360.0f)) * 2.0f;
 		compute.ubo.lightPos.z = 0.0f + cos(glm::radians(timer * 360.0f)) * 2.0f;
@@ -689,6 +692,16 @@ public:
 		VK_CHECK_RESULT(compute.uniformBuffer.map());
 		memcpy(compute.uniformBuffer.mapped, &compute.ubo, sizeof(compute.ubo));
 		compute.uniformBuffer.unmap();
+		#endif
+		#if 1
+		compute.ubo.lightPos.x = 0.0f; // + sin(glm::radians(timer * 360.0f)) * cos(glm::radians(timer * 360.0f)) * 2.0f;
+		compute.ubo.lightPos.y = 0.0f; // + sin(glm::radians(timer * 360.0f)) * 2.0f;
+		compute.ubo.lightPos.z = 4.0f; // + cos(glm::radians(timer * 360.0f)) * 2.0f;
+		compute.ubo.camera.pos = glm::vec3(0.0f, -0.0f, 4.0f);
+		VK_CHECK_RESULT(compute.uniformBuffer.map());
+		memcpy(compute.uniformBuffer.mapped, &compute.ubo, sizeof(compute.ubo));
+		compute.uniformBuffer.unmap();
+		#endif
 	}
 
 	void draw()
