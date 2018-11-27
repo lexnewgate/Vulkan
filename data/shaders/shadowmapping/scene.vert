@@ -46,6 +46,12 @@ void main()
     outLightVec = normalize(ubo.lightPos - inPos);
     outViewVec = -pos.xyz;			
 
-	outShadowCoord = ( biasMat * ubo.lightSpace * ubo.model ) * vec4(inPos, 1.0);	
+	//outShadowCoord = ( biasMat * ubo.lightSpace * ubo.model ) * vec4(inPos, 1.0);
+
+	// biasMat mode:
+	//outShadowCoord = ( biasMat * ubo.lightSpace ) * vec4(inPos, 1.0);
+
+	// fragment shader mode:
+	outShadowCoord = (ubo.lightSpace ) * vec4(inPos, 1.0);
 }
 
