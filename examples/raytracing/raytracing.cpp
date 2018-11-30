@@ -99,13 +99,14 @@ public:
 		viewportHeight = 720.0f;
 		compute.ubo.aspectRatio = (float)viewportWidth / (float)viewportHeight;
 		timerSpeed *= 0.25f;
-
+		/*
 		camera.type = Camera::CameraType::lookat;
 		camera.setPerspective(60.0f, (float)viewportWidth / (float)viewportHeight, 0.1f, 512.0f);
 		camera.setRotation(glm::vec3(0.0f, 0.0f, 0.0f));
 		camera.setTranslation(glm::vec3(0.0f, 0.0f, -4.0f));
 		camera.rotationSpeed = 0.0f;
 		camera.movementSpeed = 2.5f;
+		*/
 	}
 
 	~VulkanExample()
@@ -323,7 +324,7 @@ public:
 	{
 		// Spheres
 		std::vector<Sphere> spheres;
-		spheres.push_back(newSphere(glm::vec3(0.0f, -0.0f, 0.0f), 0.5f, glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
+		spheres.push_back(newSphere(glm::vec3(0.0f, -0.0f, -4.0f), 1.0f, glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
 		//spheres.push_back(newSphere(glm::vec3(0.0f, 1.0f, -0.5f), 1.0f, glm::vec3(0.65f, 0.77f, 0.97f), 32.0f));
 		//spheres.push_back(newSphere(glm::vec3(-1.75f, -0.75f, -0.5f), 1.25f, glm::vec3(0.9f, 0.76f, 0.46f), 32.0f));
 		VkDeviceSize storageBufferSize = spheres.size() * sizeof(Sphere);
@@ -696,8 +697,8 @@ public:
 		#if 1
 		compute.ubo.lightPos.x = 0.0f; // + sin(glm::radians(timer * 360.0f)) * cos(glm::radians(timer * 360.0f)) * 2.0f;
 		compute.ubo.lightPos.y = 0.0f; // + sin(glm::radians(timer * 360.0f)) * 2.0f;
-		compute.ubo.lightPos.z = 4.0f; // + cos(glm::radians(timer * 360.0f)) * 2.0f;
-		compute.ubo.camera.pos = glm::vec3(0.0f, -0.0f, 4.0f);
+		compute.ubo.lightPos.z = 0.0f; // + cos(glm::radians(timer * 360.0f)) * 2.0f;
+		compute.ubo.camera.pos = glm::vec3(0.0f, -0.0f, 0.0f);
 		VK_CHECK_RESULT(compute.uniformBuffer.map());
 		memcpy(compute.uniformBuffer.mapped, &compute.ubo, sizeof(compute.ubo));
 		compute.uniformBuffer.unmap();
