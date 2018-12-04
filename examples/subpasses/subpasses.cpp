@@ -131,7 +131,7 @@ public:
 #endif  
 		camera.setPosition(glm::vec3(-3.2f, 1.0f, 5.9f));
 		camera.setRotation(glm::vec3(0.5f, 210.05f, 0.0f));
-		camera.setPerspective(60.0f, (float)width / (float)height, 0.1f, 256.0f);
+		camera.setPerspective(60.0f, (float)viewportWidth / (float)viewportHeight, 0.1f, 256.0f);
 		settings.overlay = true;
 		UIOverlay.subpass = 2;
 	}
@@ -215,8 +215,8 @@ public:
 		VkImageCreateInfo image = vks::initializers::imageCreateInfo();
 		image.imageType = VK_IMAGE_TYPE_2D;
 		image.format = format;
-		image.extent.width = width;
-		image.extent.height = height;
+		image.extent.width = viewportWidth;
+		image.extent.height = viewportHeight;
 		image.extent.depth = 1;
 		image.mipLevels = 1;
 		image.arrayLayers = 1;
@@ -268,8 +268,8 @@ public:
 		frameBufferCreateInfo.renderPass = renderPass;
 		frameBufferCreateInfo.attachmentCount = 5;
 		frameBufferCreateInfo.pAttachments = attachments;
-		frameBufferCreateInfo.width = width;
-		frameBufferCreateInfo.height = height;
+		frameBufferCreateInfo.width = viewportWidth;
+		frameBufferCreateInfo.height = viewportHeight;
 		frameBufferCreateInfo.layers = 1;
 
 		// Create frame buffers for every swap chain image
@@ -454,8 +454,8 @@ public:
 		renderPassBeginInfo.renderPass = renderPass;
 		renderPassBeginInfo.renderArea.offset.x = 0;
 		renderPassBeginInfo.renderArea.offset.y = 0;
-		renderPassBeginInfo.renderArea.extent.width = width;
-		renderPassBeginInfo.renderArea.extent.height = height;
+		renderPassBeginInfo.renderArea.extent.width = viewportWidth;
+		renderPassBeginInfo.renderArea.extent.height = viewportHeight;
 		renderPassBeginInfo.clearValueCount = 5;
 		renderPassBeginInfo.pClearValues = clearValues;
 
@@ -468,10 +468,10 @@ public:
 
 			vkCmdBeginRenderPass(drawCmdBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-			VkViewport viewport = vks::initializers::viewport((float)width, (float)height, 0.0f, 1.0f);
+			VkViewport viewport = vks::initializers::viewport((float)viewportWidth, (float)viewportHeight, 0.0f, 1.0f);
 			vkCmdSetViewport(drawCmdBuffers[i], 0, 1, &viewport);
 
-			VkRect2D scissor = vks::initializers::rect2D(width, height, 0, 0);
+			VkRect2D scissor = vks::initializers::rect2D(viewportWidth, viewportHeight, 0, 0);
 			vkCmdSetScissor(drawCmdBuffers[i], 0, 1, &scissor);
 
 			VkDeviceSize offsets[1] = { 0 };
