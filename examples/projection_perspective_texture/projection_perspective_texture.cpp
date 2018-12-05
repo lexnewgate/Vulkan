@@ -44,8 +44,7 @@ float near;
 //near = 0.01f;
 float far;
 //far = 256.0f;
-float Zeye;
-//Zeye = -5.0f;
+
 
 #define PI 3.14159265
 float DEG2RAD = PI / 180.0;
@@ -54,8 +53,6 @@ static void initGolbalData() {
 	near = 0.01;
 	//float far;
 	far = 256.0;
-	//float Zeye;
-	Zeye = -5.0;
 }
 
 
@@ -564,6 +561,7 @@ public:
 		top = height;
 		
 		float scale = 1.00;
+		float Zeye = -5.0;
 		float left_at_any_z = left*Zeye/(-1*near)*scale;
 		float right_at_any_z = right*Zeye/(-1*near)*scale;
 		float bottom_at_any_z = bottom*Zeye/(-1*near)*scale;
