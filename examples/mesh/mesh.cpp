@@ -355,8 +355,11 @@ public:
 
 	void loadAssets()
 	{
-		loadModel(getAssetPath() + "models/quad.dae");
-		if (deviceFeatures.textureCompressionBC) {
+		loadModel(getAssetPath() + "models/mesh.dae");
+		if (true) {
+			textures.colorMap.loadFromFile(getAssetPath() + "textures/gorilla.ktx", VK_FORMAT_R8G8B8A8_UNORM, vulkanDevice, queue);
+		}
+		else if (deviceFeatures.textureCompressionBC) {
 			textures.colorMap.loadFromFile(getAssetPath() + "models/voyager/voyager_bc3_unorm.ktx", VK_FORMAT_BC3_UNORM_BLOCK, vulkanDevice, queue);
 		}
 		else if (deviceFeatures.textureCompressionASTC_LDR) {
