@@ -4,44 +4,59 @@
 #extension GL_ARB_shading_language_420pack : enable
 
 layout (location = 0) in vec3 inPos;
-layout (location = 1) in vec2 inUV;
-layout (location = 2) in vec3 inNormal;
+layout (location = 1) in vec3 inNormal;
+layout (location = 2) in vec2 inUV;
+layout (location = 3) in vec3 inColor;
 
 layout (binding = 0) uniform UBO 
 {
 	mat4 projection;
 	mat4 model;
-	vec4 viewPos;
-	float lodBias;
+	vec4 lightPos;
 } ubo;
 
-layout (location = 0) out vec2 outUV;
-layout (location = 1) out float outLodBias;
-layout (location = 2) out vec3 outNormal;
+layout (location = 0) out vec3 outNormal;
+layout (location = 1) out vec3 outColor;
+layout (location = 2) out vec2 outUV;
 layout (location = 3) out vec3 outViewVec;
 layout (location = 4) out vec3 outLightVec;
 
-out gl_PerVertex 
+vec4 Distort(vec4 p)
 {
-    vec4 gl_Position;   
+    vec2 v = p.xy / p.w;
+    // Convert to polar coords:
+    float radius = length(v);
+    if (radius > 0)
+    {
+      float theta = atan(v.y,v.x);
+      
+      // Distort:
+      radius = pow(radius, 0.8);
+
+      // Convert back to Cartesian:
+      v.x = radius * cos(theta);
+      v.y = radius * sin(theta);
+      p.xy = v.xy * p.w;
+    }
+    return p;
+}
+
+out gl_PerVertex
+{
+	vec4 gl_Position;
 };
 
 void main() 
 {
-    outUV = inUV;
-    outLodBias = ubo.lodBias;
-
-    vec3 worldPos = vec3(ubo.model * vec4(inPos, 1.0));
-
-    gl_Position = ubo.projection * ubo.model * vec4(inPos.xyz, 1.0);
-    // https://matthewwellings.com/blog/the-new-vulkan-coordinate-system/
-    gl_Position.y = -gl_Position.y;
-
-
-    vec4 pos = ubo.model * vec4(inPos, 1.0);
-    outNormal = mat3(inverse(transpose(ubo.model))) * inNormal;
-    vec3 lightPos = vec3(0.0);
-    vec3 lPos = mat3(ubo.model) * lightPos.xyz;
-    outLightVec = lPos - pos.xyz;
-    outViewVec = ubo.viewPos.xyz - pos.xyz;		
+	outNormal = inNormal;
+	outColor = inColor;
+	outUV = inUV;
+	gl_Position = ubo.projection * ubo.model * vec4(inPos.xyz, 1.0);
+	gl_Position = Distort(gl_Position);
+	
+	vec4 pos = ubo.model * vec4(inPos, 1.0);
+	outNormal = mat3(ubo.model) * inNormal;
+	vec3 lPos = mat3(ubo.model) * ubo.lightPos.xyz;
+	outLightVec = lPos - pos.xyz;
+	outViewVec = -pos.xyz;		
 }

@@ -3,26 +3,49 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_ARB_shading_language_420pack : enable
 
-layout (binding = 1) uniform sampler2D samplerColor;
+layout (binding = 1) uniform sampler2D samplerColorMap;
 
-layout (location = 0) in vec2 inUV;
-layout (location = 1) in float inLodBias;
-layout (location = 2) in vec3 inNormal;
+layout (location = 0) in vec3 inNormal;
+layout (location = 1) in vec3 inColor;
+layout (location = 2) in vec2 inUV;
 layout (location = 3) in vec3 inViewVec;
 layout (location = 4) in vec3 inLightVec;
 
 layout (location = 0) out vec4 outFragColor;
 
+
+vec2 Distort(vec2 p)
+{
+    float theta  = atan(p.y, p.x);
+    float radius = length(p);
+    radius = pow(radius, 1.1);
+    p.x = radius * cos(theta);
+    p.y = radius * sin(theta);
+    return 0.5 * (p + 1.0);
+}
+
 void main() 
 {
-	vec4 color = texture(samplerColor, inUV, inLodBias);
+	/*
+	vec2 uv;
+	float d = length(inUV);
+	if (d < 1.0)
+	{
+	  uv = Distort(inUV);
+	}
+	else
+	{
+	  uv = inUV.xy;
+	}
+	uv = Distort(inUV);
+	*/
+	vec4 color = texture(samplerColorMap, inUV) * vec4(inColor, 1.0);
 
 	vec3 N = normalize(inNormal);
 	vec3 L = normalize(inLightVec);
 	vec3 V = normalize(inViewVec);
 	vec3 R = reflect(-L, N);
-	vec3 diffuse = max(dot(N, L), 0.0) * vec3(1.0);
-	float specular = pow(max(dot(R, V), 0.0), 16.0) * color.a;
-
-	outFragColor = vec4(diffuse * color.rgb + specular, 1.0);	
+	vec3 diffuse = max(dot(N, L), 0.0) * inColor;
+	vec3 specular = pow(max(dot(R, V), 0.0), 16.0) * vec3(0.75);
+	outFragColor = vec4(color.rgb, 1.0);//vec4(diffuse * color.rgb*2.0 + specular*3.0+1.0, 1.0);		
 }
