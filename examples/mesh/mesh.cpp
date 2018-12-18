@@ -30,6 +30,11 @@
 #define VERTEX_BUFFER_BIND_ID 0
 #define ENABLE_VALIDATION false
 
+static void printGlmVec3(glm::vec3 vec3) {
+	printf("%f,%f,%f\n",vec3[0], vec3[1],vec3[2]);
+}
+
+
 class VulkanExample : public VulkanExampleBase
 {
 public:
@@ -228,6 +233,7 @@ public:
 
 				// Use glm make_* functions to convert ASSIMP vectors to glm vectors
 				vertex.pos = glm::make_vec3(&scene->mMeshes[m]->mVertices[v].x) * scale;
+				printGlmVec3(vertex.pos);
 				vertex.normal = glm::make_vec3(&scene->mMeshes[m]->mNormals[v].x);
 				// Texture coordinates and colors may have multiple channels, we only use the first [0] one
 				vertex.uv = glm::make_vec2(&scene->mMeshes[m]->mTextureCoords[0][v].x);
@@ -235,7 +241,8 @@ public:
 				vertex.color = (scene->mMeshes[m]->HasVertexColors(0)) ? glm::make_vec3(&scene->mMeshes[m]->mColors[0][v].r) : glm::vec3(1.0f);
 
 				// Vulkan uses a right-handed NDC (contrary to OpenGL), so simply flip Y-Axis
-				vertex.pos.y *= -1.0f;
+				//vertex.pos.y *= -1.0f;
+				printGlmVec3(vertex.pos);
 
 				vertexBuffer.push_back(vertex);
 			}
@@ -608,6 +615,7 @@ public:
 	void updateUniformBuffers()
 	{
 		uboVS.projection = glm::perspective(glm::radians(60.0f), (float)viewportWidth / (float)viewportHeight, 0.1f, 256.0f);
+		uboVS.projection[1][1] *= -1.0f;
 		glm::mat4 viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, zoom));
 
 		uboVS.model = viewMatrix * glm::translate(glm::mat4(1.0f), cameraPos);
