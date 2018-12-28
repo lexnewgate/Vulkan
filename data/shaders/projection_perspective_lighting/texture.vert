@@ -41,7 +41,7 @@ void main()
     vec3 lPos = mat3(ubo.model) * lightPos.xyz;
     outLightVec = lPos - pos.xyz;
     outViewVec = ubo.viewPos.xyz - pos.xyz;
-    //TODO: investigate why normalize invertex shader not work.
+    //TODO: investigate why normalize in vertex shader not work.
     /*
     outNormal = normalize(outNormal);
     outLightVec = normalize(outLightVec);

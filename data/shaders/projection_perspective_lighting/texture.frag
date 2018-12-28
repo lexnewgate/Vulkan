@@ -17,7 +17,7 @@ void main()
 {
 	vec4 color = texture(samplerColor, inUV, inLodBias);
 
-	//TODO: investigate why normalize invertex shader not work.
+	//TODO: investigate why normalize in vertex shader not work.
 	vec3 N = normalize(inNormal);
 	vec3 L = normalize(inLightVec);
 	vec3 V = normalize(inViewVec);
