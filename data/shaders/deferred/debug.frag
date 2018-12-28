@@ -11,16 +11,16 @@ layout (location = 0) in vec3 inUV;
 
 layout (location = 0) out vec4 outFragColor;
 
-void main() 
+void main()
 {
-	vec3 components[3];
-	components[0] = texture(samplerPosition, inUV.st).rgb;  
-	components[1] = texture(samplerNormal, inUV.st).rgb;  
-	components[2] = texture(samplerAlbedo, inUV.st).rgb;  
-	// Uncomment to display specular component
-	//components[2] = vec3(texture(samplerAlbedo, inUV.st).a);  
-	
-	// Select component depending on z coordinate of quad
-	highp int index = int(inUV.z);
-	outFragColor.rgb = components[index];
+  vec3 components[3];
+  components[0] = texture(samplerPosition, inUV.st).rgb;
+  components[1] = texture(samplerNormal, inUV.st).rgb;
+  components[2] = texture(samplerAlbedo, inUV.st).rgb;
+  // Uncomment to display specular component
+  //components[2] = vec3(texture(samplerAlbedo, inUV.st).a);
+  
+  // Select component depending on z coordinate of quad
+  highp int index = int(inUV.z);
+  outFragColor.rgb = components[index];
 }

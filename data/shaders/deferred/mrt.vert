@@ -11,10 +11,10 @@ layout (location = 4) in vec3 inTangent;
 
 layout (binding = 0) uniform UBO 
 {
-	mat4 projection;
-	mat4 model;
-	mat4 view;
-	vec4 instancePos[3];
+  mat4 projection;
+  mat4 model;
+  mat4 view;
+  vec4 instancePos[3];
 } ubo;
 
 layout (location = 0) out vec3 outNormal;
@@ -25,28 +25,28 @@ layout (location = 4) out vec3 outTangent;
 
 out gl_PerVertex
 {
-	vec4 gl_Position;
+  vec4 gl_Position;
 };
 
-void main() 
+void main()
 {
-	vec4 tmpPos = inPos + ubo.instancePos[gl_InstanceIndex];
+  vec4 tmpPos = inPos + ubo.instancePos[gl_InstanceIndex];
 
-	gl_Position = ubo.projection * ubo.view * ubo.model * tmpPos;
-	
-	outUV = inUV;
-	outUV.t = 1.0 - outUV.t;
+  gl_Position = ubo.projection * ubo.view * ubo.model * tmpPos;
+  
+  outUV = inUV;
+  outUV.t = 1.0 - outUV.t;
 
-	// Vertex position in world space
-	outWorldPos = vec3(ubo.model * tmpPos);
-	// GL to Vulkan coord space
-	outWorldPos.y = -outWorldPos.y;
-	
-	// Normal in world space
-	mat3 mNormal = transpose(inverse(mat3(ubo.model)));
-	outNormal = mNormal * normalize(inNormal);	
-	outTangent = mNormal * normalize(inTangent);
-	
-	// Currently just vertex color
-	outColor = inColor;
+  // Vertex position in world space
+  outWorldPos = vec3(ubo.model * tmpPos);
+  // GL to Vulkan coord space
+  outWorldPos.y = -outWorldPos.y;
+  
+  // Normal in world space
+  mat3 mNormal = transpose(inverse(mat3(ubo.model)));
+  outNormal = mNormal * normalize(inNormal);  
+  outTangent = mNormal * normalize(inTangent);
+  
+  // Currently just vertex color
+  outColor = inColor;
 }
