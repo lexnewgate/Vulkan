@@ -683,7 +683,7 @@ public:
 		camera.type = Camera::CameraType::lookat;
 		camera.setPosition(glm::vec3(0.0f, 0.0f, -4.5f));
 		camera.setRotation(glm::vec3(-25.0f, -0.0f, 0.0f));
-		camera.setPerspective(60.0f, (float)width / (float)height, 0.1f, 256.0f);
+		camera.setPerspective(60.0f, (float)viewportWidth / (float)viewportHeight, 0.1f, 256.0f);
 	}
 
 	~VulkanExample()
@@ -707,8 +707,8 @@ public:
 
 		VkRenderPassBeginInfo renderPassBeginInfo = vks::initializers::renderPassBeginInfo();
 		renderPassBeginInfo.renderPass = renderPass;
-		renderPassBeginInfo.renderArea.extent.width = width;
-		renderPassBeginInfo.renderArea.extent.height = height;
+		renderPassBeginInfo.renderArea.extent.width = viewportWidth;
+		renderPassBeginInfo.renderArea.extent.height = viewportHeight;
 		renderPassBeginInfo.clearValueCount = 2;
 		renderPassBeginInfo.pClearValues = clearValues;
 
@@ -721,10 +721,10 @@ public:
 
 			vkCmdBeginRenderPass(drawCmdBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-			VkViewport viewport = vks::initializers::viewport((float)width, (float)height, 0.0f, 1.0f);
+			VkViewport viewport = vks::initializers::viewport((float)viewportWidth, (float)viewportHeight, 0.0f, 1.0f);
 			vkCmdSetViewport(drawCmdBuffers[i], 0, 1, &viewport);
 
-			VkRect2D scissor = vks::initializers::rect2D(width, height, 0, 0);
+			VkRect2D scissor = vks::initializers::rect2D(viewportWidth, viewportHeight, 0, 0);
 			vkCmdSetScissor(drawCmdBuffers[i], 0, 1, &scissor);
 
 			VkDeviceSize offsets[1] = { 0 };
@@ -766,24 +766,24 @@ public:
 				{
 					std::stringstream vpos;
 					vpos << std::showpos << x << "/" << y << "/" << z;
-					glm::vec3 projected = glm::project(glm::vec3((float)x, (float)y, (float)z), uboVS.model, uboVS.projection, glm::vec4(0, 0, (float)width, (float)height));
+					glm::vec3 projected = glm::project(glm::vec3((float)x, (float)y, (float)z), uboVS.model, uboVS.projection, glm::vec4(0, 0, (float)viewportWidth, (float)viewportHeight));
 					textOverlay->addText(vpos.str(), projected.x, projected.y + (y > -1 ? 5.0f : -20.0f), TextOverlay::alignCenter);
 				}
 			}
 		}
 
 		// Display current model view matrix
-		textOverlay->addText("model view matrix", (float)width, 5.0f, TextOverlay::alignRight);
+		textOverlay->addText("model view matrix", (float)viewportWidth, 5.0f, TextOverlay::alignRight);
 
 		for (uint32_t i = 0; i < 4; i++)
 		{
 			ss.str("");
 			ss << std::fixed << std::setprecision(2) << std::showpos;
 			ss << uboVS.model[0][i] << " " << uboVS.model[1][i] << " " << uboVS.model[2][i] << " " << uboVS.model[3][i];
-			textOverlay->addText(ss.str(), (float)width, 25.0f + (float)i * 20.0f, TextOverlay::alignRight);
+			textOverlay->addText(ss.str(), (float)viewportWidth, 25.0f + (float)i * 20.0f, TextOverlay::alignRight);
 		}
 
-		glm::vec3 projected = glm::project(glm::vec3(0.0f), uboVS.model, uboVS.projection, glm::vec4(0, 0, (float)width, (float)height));
+		glm::vec3 projected = glm::project(glm::vec3(0.0f), uboVS.model, uboVS.projection, glm::vec4(0, 0, (float)viewportWidth, (float)viewportHeight));
 		textOverlay->addText("Uniform cube", projected.x, projected.y, TextOverlay::alignCenter);
 
 #if defined(__ANDROID__)
@@ -925,8 +925,8 @@ public:
 			frameBuffers,
 			swapChain.colorFormat,
 			depthFormat,
-			&width,
-			&height,
+			&viewportWidth,
+			&viewportHeight,
 			shaderStages
 			);
 		updateTextOverlay();
