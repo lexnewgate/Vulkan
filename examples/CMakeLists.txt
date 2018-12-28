@@ -78,6 +78,7 @@ set(EXAMPLES
 	pbrtexture
 	pipelines
 	pipelinestatistics
+	projection_perspective_lighting
 	projection_perspective_lookat
 	projection_perspective_quad
 	projection_perspective_quad_novertex
