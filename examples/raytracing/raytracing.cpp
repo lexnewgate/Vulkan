@@ -1,9 +1,12 @@
 /*
-* Vulkan Example - Compute shader ray tracing
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
+* Copyright (C) 2016-2017 by Sascha Willems - www.saschawillems.de
+* Copyright (C) 2019 by Xu Xing - xu.xing@outlook.com
 * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+* Code is based on Sascha Willems's Vulkan example:
+* https://github.com/SaschaWillems/Vulkan/tree/master/examples/raytracing
+*
+* 3D1 Example - Compute shader ray tracing
+*
 */
 
 #include <stdio.h>

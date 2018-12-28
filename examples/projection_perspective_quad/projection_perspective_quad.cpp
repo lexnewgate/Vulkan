@@ -1,14 +1,12 @@
 /*
-* Vulkan Example - Basic indexed triangle rendering
-*
-* Note:
-*	This is a "pedal to the metal" example to show off how to get Vulkan up an displaying something
-*	Contrary to the other examples, this one won't make use of helper functions or initializers
-*	Except in a few cases (swap chain setup e.g.)
-*
 * Copyright (C) 2016-2017 by Sascha Willems - www.saschawillems.de
-*
+* Copyright (C) 2019 by Xu Xing - xu.xing@outlook.com
 * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+* Code is based on Sascha Willems's Vulkan example:
+* https://github.com/SaschaWillems/Vulkan/tree/master/examples/texture
+*
+* 3D1 Example - Basic Quad rendering
+*
 */
 
 #include <stdio.h>
