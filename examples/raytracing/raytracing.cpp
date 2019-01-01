@@ -32,7 +32,8 @@
 #else
 #define TEX_DIM 2048
 #endif
-
+#define USE_PLANES
+#define USE_SPHERES
 class VulkanExample : public VulkanExampleBase
 {
 public:
@@ -98,8 +99,8 @@ public:
 	{
 		title = "Compute shader ray tracing";
 		settings.overlay = true;
-		viewportWidth = 720.0f;
-		viewportHeight = 720.0f;
+		viewportWidth = 720;
+		viewportHeight = 720;
 		compute.ubo.aspectRatio = (float)viewportWidth / (float)viewportHeight;
 		timerSpeed *= 0.25f;
 		/*
@@ -325,15 +326,20 @@ public:
 	// Setup and fill the compute shader storage buffers containing primitives for the raytraced scene
 	void prepareStorageBuffers()
 	{
+	    VkDeviceSize storageBufferSize;
+		// Stage
+		vks::Buffer stagingBuffer;
+		VkCommandBuffer copyCmd;
+		VkBufferCopy copyRegion = {};
+		#ifdef USE_SPHERES
 		// Spheres
 		std::vector<Sphere> spheres;
 		spheres.push_back(newSphere(glm::vec3(0.0f, -0.0f, -4.0f), 1.0f, glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
 		//spheres.push_back(newSphere(glm::vec3(0.0f, 1.0f, -0.5f), 1.0f, glm::vec3(0.65f, 0.77f, 0.97f), 32.0f));
 		//spheres.push_back(newSphere(glm::vec3(-1.75f, -0.75f, -0.5f), 1.25f, glm::vec3(0.9f, 0.76f, 0.46f), 32.0f));
-		VkDeviceSize storageBufferSize = spheres.size() * sizeof(Sphere);
+		storageBufferSize = spheres.size() * sizeof(Sphere);
 
-		// Stage
-		vks::Buffer stagingBuffer;
+
 
 		vulkanDevice->createBuffer(
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
@@ -350,13 +356,14 @@ public:
 			storageBufferSize);
 
 		// Copy to staging buffer
-		VkCommandBuffer copyCmd = VulkanExampleBase::createCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
-		VkBufferCopy copyRegion = {};
+		copyCmd = VulkanExampleBase::createCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
+		copyRegion = {};
 		copyRegion.size = storageBufferSize;
 		vkCmdCopyBuffer(copyCmd, stagingBuffer.buffer, compute.storageBuffers.spheres.buffer, 1, &copyRegion);
 		VulkanExampleBase::flushCommandBuffer(copyCmd, queue, true);
 
 		stagingBuffer.destroy();
+		#endif
 
 		#ifdef USE_PLANES
 		// Planes
@@ -572,17 +579,19 @@ public:
 				VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 				VK_SHADER_STAGE_COMPUTE_BIT,
 				1),
+			#ifdef USE_SPHERES
 			// Binding 1: Shader storage buffer for the spheres
 			vks::initializers::descriptorSetLayoutBinding(
 				VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
 				VK_SHADER_STAGE_COMPUTE_BIT,
-				2)
+				2),
+			#endif
 			#ifdef USE_PLANES
 			// Binding 1: Shader storage buffer for the planes
 			vks::initializers::descriptorSetLayoutBinding(
 				VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
 				VK_SHADER_STAGE_COMPUTE_BIT,
-				3)
+				3),
 			#endif
 		};
 
@@ -622,12 +631,14 @@ public:
 				VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 				1,
 				&compute.uniformBuffer.descriptor),
+			#ifdef USE_SPHERES
 			// Binding 2: Shader storage buffer for the spheres
 			vks::initializers::writeDescriptorSet(
 				compute.descriptorSet,
 				VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
 				2,
-				&compute.storageBuffers.spheres.descriptor)
+				&compute.storageBuffers.spheres.descriptor),
+			#endif
 			// Binding 2: Shader storage buffer for the planes
 			#ifdef USE_PLANES
 			vks::initializers::writeDescriptorSet(
@@ -698,9 +709,9 @@ public:
 		compute.uniformBuffer.unmap();
 		#endif
 		#if 1
-		compute.ubo.lightPos.x = 0.0f; // + sin(glm::radians(timer * 360.0f)) * cos(glm::radians(timer * 360.0f)) * 2.0f;
+		compute.ubo.lightPos.x = 0.0f; // sin(glm::radians(timer * 360.0f)) * cos(glm::radians(timer * 360.0f)) * 2.0f;
 		compute.ubo.lightPos.y = 0.0f; // + sin(glm::radians(timer * 360.0f)) * 2.0f;
-		compute.ubo.lightPos.z = 0.0f; // + cos(glm::radians(timer * 360.0f)) * 2.0f;
+		compute.ubo.lightPos.z = cos(glm::radians(timer * 360.0f)) * 2.0f;
 		compute.ubo.camera.pos = glm::vec3(0.0f, -0.0f, 0.0f);
 		VK_CHECK_RESULT(compute.uniformBuffer.map());
 		memcpy(compute.uniformBuffer.mapped, &compute.ubo, sizeof(compute.ubo));

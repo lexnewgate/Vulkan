@@ -49,17 +49,22 @@ struct Plane
   float specular;
   int id;
 };
+#define USE_PLANES
+#define USE_SPHERES
 
+#ifdef USE_SPHERES
 layout (std140, binding = 2) buffer Spheres
 {
   Sphere spheres[ ];
 };
-/*
+#endif
+
+#ifdef USE_PLANES
 layout (std140, binding = 3) buffer Planes
 {
   Plane planes[ ];
 };
-*/
+#endif
 
 void reflectRay(inout vec3 rayD, in vec3 mormal)
 {
@@ -123,7 +128,7 @@ float planeIntersect(vec3 rayO, vec3 rayD, Plane plane)
 int intersect(in vec3 rayO, in vec3 rayD, inout float resT)
 {
   int id = -1;
-
+  #ifdef USE_SPHERES
   for (int i = 0; i < spheres.length(); i++)
   {
     float tSphere = sphereIntersect(rayO, rayD, spheres[i]);
@@ -132,9 +137,10 @@ int intersect(in vec3 rayO, in vec3 rayD, inout float resT)
       id = spheres[i].id;
       resT = tSphere;
     }
-  }  
+  } 
+  #endif
 
-  /*
+  #ifdef USE_PLANES
   for (int i = 0; i < planes.length(); i++)
   {
     float tplane = planeIntersect(rayO, rayD, planes[i]);
@@ -144,11 +150,12 @@ int intersect(in vec3 rayO, in vec3 rayD, inout float resT)
       resT = tplane;
     }  
   }
-  */
+  #endif
   
   return id;
 }
 
+#ifdef USE_SHADOW
 float calcShadow(in vec3 rayO, in vec3 rayD, in int objectId, inout float t)
 {
   for (int i = 0; i < spheres.length(); i++)
@@ -164,11 +171,14 @@ float calcShadow(in vec3 rayO, in vec3 rayD, in int objectId, inout float t)
   }    
   return 1.0;
 }
+#endif
 
+#ifdef USE_FOG
 vec3 fog(in float t, in vec3 color)
 {
   return mix(color, ubo.fogColor.rgb, clamp(sqrt(t*t)/20.0, 0.0, 1.0));
 }
+#endif
 
 vec3 renderScene(inout vec3 rayO, inout vec3 rayD, inout int id)
 {
@@ -187,10 +197,8 @@ vec3 renderScene(inout vec3 rayO, inout vec3 rayD, inout int id)
   vec3 lightVec = normalize(ubo.lightPos - pos);        
   vec3 normal;
 
-  // Planes
-
   // Spheres
-  /*
+  #ifdef USE_PLANES
   for (int i = 0; i < planes.length(); i++)
   {
     if (objectID == planes[i].id)
@@ -201,8 +209,9 @@ vec3 renderScene(inout vec3 rayO, inout vec3 rayD, inout int id)
       color = diffuse * planes[i].diffuse + specular;  
     }
   }
-  */
-
+  #endif
+  #ifdef USE_SPHERES
+  // Planes
   for (int i = 0; i < spheres.length(); i++)
   {
     if (objectID == spheres[i].id)
@@ -213,21 +222,26 @@ vec3 renderScene(inout vec3 rayO, inout vec3 rayD, inout int id)
       color = diffuse * spheres[i].diffuse + specular;  
     }
   }
-
+  #endif
   if (id == -1)
     return color;
 
   id = objectID;
-
-  // Shadows
   t = length(ubo.lightPos - pos);
-  //color *= calcShadow(pos, lightVec, id, t);
-  
+
+  #ifdef USE_SHADOW
+  // Shadows
+  color *= calcShadow(pos, lightVec, id, t);
+  #endif
+  #ifdef USE_FOG
   // Fog
-  //color = fog(t, color);  
-  
+  color = fog(t, color);
+  #endif
+
+  #ifdef USE_REFLECT
   // Reflect ray for next render pass
-  //reflectRay(rayD, normal);
+  reflectRay(rayD, normal);
+  #endif
   rayO = pos;  
   
   return color;
