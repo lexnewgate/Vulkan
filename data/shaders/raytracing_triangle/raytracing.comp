@@ -49,8 +49,22 @@ struct Plane
   float specular;
   int id;
 };
-#define USE_PLANES
-#define USE_SPHERES
+
+struct Triangle 
+{
+  vec3 v0;
+  vec3 v1;
+  vec3 v2;
+  vec3 normal;
+  vec3 diffuse;
+  float specular;
+  int id;
+};
+
+//#define USE_PLANES
+//#define USE_SPHERES
+#define USE_TRIANGLES
+
 
 #ifdef USE_SPHERES
 layout (std140, binding = 2) buffer Spheres
@@ -65,6 +79,14 @@ layout (std140, binding = 3) buffer Planes
   Plane planes[ ];
 };
 #endif
+
+#ifdef USE_TRIANGLES
+layout (std140, binding = 3) buffer Triangles
+{
+  Triangle triangles[ ];
+};
+#endif
+
 
 void reflectRay(inout vec3 rayD, in vec3 mormal)
 {
@@ -124,6 +146,39 @@ float planeIntersect(vec3 rayO, vec3 rayD, Plane plane)
   return t;
 }
 
+
+float triangleIntersect(vec3 rayO, vec3 rayD, Triangle triangle)
+{
+  float d = dot(rayD, triangle.normal);
+
+  vec3 edg0 = v1-v0;
+  vec3 edg1 = v2-v1;
+  vec3 edg2 = v0-v2;
+
+  vec3 c0 = rayD-v0;
+  vec3 c1 = rayD-v1;
+  vec3 c2 = rayD-v2;
+  float cr0 = dot(triangle.normal, cross(edge0, c0));
+  float cr1 = dot(triangle.normal, cross(edge1, c1));
+  float cr2 = dot(triangle.normal, cross(edge2, c2));
+  if (cr0>0 && cr1>0 && cr2 >0) {
+    t = -(triangle.distance + dot(rayO, triangle.normal)) / d;
+    return t;
+  }
+  else 
+  	return 0.0;
+
+  if (d == 0.0)
+    return 0.0;
+
+  float t = -(triangle.distance + dot(rayO, triangle.normal)) / d;
+
+  if (t < 0.0)
+    return 0.0;
+
+  return t;
+}
+
   
 int intersect(in vec3 rayO, in vec3 rayD, inout float resT)
 {
@@ -151,6 +206,19 @@ int intersect(in vec3 rayO, in vec3 rayD, inout float resT)
     }  
   }
   #endif
+
+#ifdef USE_PLANES
+  for (int i = 0; i < triangles.length(); i++)
+  {
+    float tplane = triangleIntersect(rayO, rayD, triangles[i]);
+    if ((tplane > EPSILON) && (tplane < resT))
+    {
+      id = triangles[i].id;
+      resT = tplane;
+    }  
+  }
+#endif
+
   
   return id;
 }
@@ -197,8 +265,22 @@ vec3 renderScene(inout vec3 rayO, inout vec3 rayD, inout int id)
   vec3 lightVec = normalize(ubo.lightPos - pos);        
   vec3 normal;
 
-  // Spheres
-  #ifdef USE_PLANES
+  // Triangles
+  #ifdef USE_TRIANGLES
+  for (int i = 0; i < triangles.length(); i++)
+  {
+    if (objectID == triangles[i].id)
+    {
+      normal = triangles[i].normal;
+      float diffuse = lightDiffuse(normal, lightVec);
+      float specular = lightSpecular(normal, lightVec, triangles[i].specular);
+      color = diffuse * triangles[i].diffuse + specular;  
+    }
+  }
+  #endif
+  
+  // Planes
+#ifdef USE_PLANES
   for (int i = 0; i < planes.length(); i++)
   {
     if (objectID == planes[i].id)
@@ -209,9 +291,10 @@ vec3 renderScene(inout vec3 rayO, inout vec3 rayD, inout int id)
       color = diffuse * planes[i].diffuse + specular;  
     }
   }
-  #endif
+#endif
+
+  // PSpheres
   #ifdef USE_SPHERES
-  // Planes
   for (int i = 0; i < spheres.length(); i++)
   {
     if (objectID == spheres[i].id)
