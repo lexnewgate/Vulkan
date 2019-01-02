@@ -158,7 +158,8 @@ class VulkanExample : public VulkanExampleBase {
   void loadTexture() {
     // We use the Khronos texture format
     // (https://www.khronos.org/opengles/sdk/tools/KTX/file_format_spec/)
-    // std::string filename = getAssetPath() + "textures/metalplate01_rgba.ktx";
+
+    // Step 1: load disk file into CPU texture data.
     std::string filename = getAssetPath() + "textures/gorilla.ktx";
     // Texture data contains 4 channels (RGBA) with unnormalized 8-bit values,
     // this is the most commonly supported format
@@ -207,6 +208,7 @@ class VulkanExample : public VulkanExampleBase {
     VkMemoryAllocateInfo memAllocInfo = vks::initializers::memoryAllocateInfo();
     VkMemoryRequirements memReqs = {};
 
+    // Step 2: load CPU data into VkImage.
     if (useStaging) {
       // Copy data to an optimal tiled image
       // This loads the texture data into a host local buffer that is copied to
@@ -215,6 +217,9 @@ class VulkanExample : public VulkanExampleBase {
       // Create a host-visible staging buffer that contains the raw image data
       // This buffer will be the data source for copying texture data to the
       // optimal tiled image on the device
+
+      // Step 2.1 (staging): copy CPU texture data into HOST_VISIBLE staging
+      // VkBuffer.
       VkBuffer stagingBuffer;
       VkDeviceMemory stagingMemory;
 
@@ -246,6 +251,9 @@ class VulkanExample : public VulkanExampleBase {
                                   (void**)&data));
       memcpy(data, tex2D.data(), tex2D.size());
       vkUnmapMemory(device, stagingMemory);
+
+      // Step 2.2 (staging): setup comand buffer which can be used to copy
+      // HOST_VISIBLE staging VkBuffer into DEVICE_LOCAL VkImage.
 
       // Setup buffer copy regions for each mip level
       std::vector<VkBufferImageCopy> bufferCopyRegions;
@@ -365,6 +373,8 @@ class VulkanExample : public VulkanExampleBase {
     } else {
       // Copy data to a linear tiled image
 
+      // Step 2.1 (non-staging): copy CPU texture data into HOST_VISIBLE
+      // VkImage.
       VkImage mappableImage;
       VkDeviceMemory mappableMemory;
 
@@ -444,6 +454,8 @@ class VulkanExample : public VulkanExampleBase {
 
       VulkanExampleBase::flushCommandBuffer(copyCmd, queue, true);
     }
+
+    // Step 3: create VkSampler and VkImageView.
 
     // Create a texture sampler
     // In Vulkan textures are accessed by samplers
@@ -754,7 +766,7 @@ class VulkanExample : public VulkanExampleBase {
                                               0, &uniformBufferVS.descriptor),
         // Binding 1 : Fragment shader texture sampler
         //	Fragment shader: layout (binding = 1) uniform sampler2D
-        //samplerColor;
+        // samplerColor;
         vks::initializers::writeDescriptorSet(
             descriptorSet,
             VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,  // The descriptor set
