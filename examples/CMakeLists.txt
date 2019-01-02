@@ -88,6 +88,8 @@ set(EXAMPLES
 	pushdescriptors
 	radialblur
 	raytracing
+    raytracing_quad
+    raytracing_triangle
 	renderheadless
 	scenerendering
 	screenshot
