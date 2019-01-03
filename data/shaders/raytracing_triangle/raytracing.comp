@@ -151,18 +151,19 @@ float triangleIntersect(vec3 rayO, vec3 rayD, Triangle triangle)
 {
   float d = dot(rayD, triangle.normal);
 
-  vec3 edg0 = v1-v0;
-  vec3 edg1 = v2-v1;
-  vec3 edg2 = v0-v2;
+  vec3 edge0 = triangle.v1-triangle.v0;
+  vec3 edge1 = triangle.v2-triangle.v1;
+  vec3 edge2 = triangle.v0-triangle.v2;
 
-  vec3 c0 = rayD-v0;
-  vec3 c1 = rayD-v1;
-  vec3 c2 = rayD-v2;
+  vec3 c0 = rayD-triangle.v0;
+  vec3 c1 = rayD-triangle.v1;
+  vec3 c2 = rayD-triangle.v2;
   float cr0 = dot(triangle.normal, cross(edge0, c0));
   float cr1 = dot(triangle.normal, cross(edge1, c1));
   float cr2 = dot(triangle.normal, cross(edge2, c2));
+  float triangle_distance = 4.0;
   if (cr0>0 && cr1>0 && cr2 >0) {
-    t = -(triangle.distance + dot(rayO, triangle.normal)) / d;
+    float t = -(triangle_distance + dot(rayO, triangle.normal)) / d;
     return t;
   }
   else 
@@ -171,7 +172,7 @@ float triangleIntersect(vec3 rayO, vec3 rayD, Triangle triangle)
   if (d == 0.0)
     return 0.0;
 
-  float t = -(triangle.distance + dot(rayO, triangle.normal)) / d;
+  float t = -(triangle_distance + dot(rayO, triangle.normal)) / d;
 
   if (t < 0.0)
     return 0.0;
