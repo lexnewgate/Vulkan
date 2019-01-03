@@ -88,6 +88,7 @@ set(EXAMPLES
 	pushdescriptors
 	radialblur
 	raytracing
+    raytracing_plane
     raytracing_quad
     raytracing_triangle
 	renderheadless
