@@ -381,6 +381,7 @@ class VulkanExample : public VulkanExampleBase {
     triangle.v0 = v0;
     triangle.v1 = v1;
     triangle.v2 = v2;
+    triangle.normal = normal;
     triangle.diffuse = diffuse;
     triangle.specular = specular;
     return triangle;
@@ -411,7 +412,7 @@ class VulkanExample : public VulkanExampleBase {
 #ifdef USE_TRIANGLES
     // Spheres
     std::vector<Triangle> triangles;
-    triangles.push_back(newTriangle(glm::vec3(0.0f, 0.0f, -4.0f), glm::vec3(0.0f, -0.0f, -4.0f), glm::vec3(0.0f, 1.0f, -4.0f), glm::vec3(1.0f, 0.0f, -4.0f),
+    triangles.push_back(newTriangle(glm::vec3(0.0f, 0.0f, -4.0f), glm::vec3(0.0f, 2.0f, -4.0f), glm::vec3(1.0f, 0.0f, -4.0f), glm::vec3(0.0f, 0.0f, 1.0f),
                                 glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
     // spheres.push_back(newSphere(glm::vec3(0.0f, 1.0f, -0.5f), 1.0f,
     // glm::vec3(0.65f, 0.77f, 0.97f), 32.0f));
