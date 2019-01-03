@@ -208,7 +208,7 @@ int intersect(in vec3 rayO, in vec3 rayD, inout float resT)
   }
   #endif
 
-#ifdef USE_PLANES
+#ifdef USE_TRIANGLES
   for (int i = 0; i < triangles.length(); i++)
   {
     float tplane = triangleIntersect(rayO, rayD, triangles[i]);

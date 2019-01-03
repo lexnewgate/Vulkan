@@ -439,7 +439,7 @@ class VulkanExample : public VulkanExampleBase {
     copyRegion = {};
     copyRegion.size = storageBufferSize;
     vkCmdCopyBuffer(copyCmd, stagingBuffer.buffer,
-                    compute.storageBuffers.spheres.buffer, 1, &copyRegion);
+                    compute.storageBuffers.triangles.buffer, 1, &copyRegion);
     VulkanExampleBase::flushCommandBuffer(copyCmd, queue, true);
 
     stagingBuffer.destroy();
