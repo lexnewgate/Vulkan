@@ -105,17 +105,19 @@ class VulkanExample : public VulkanExampleBase {
   // SSBO triangle declaration
   struct Triangle {
     // Shader uses std140 layout (so we only use vec4 instead of vec3)
-    glm::vec3 v0;
-    glm::vec3 v1;
-    glm::vec3 v2;
     glm::vec3 normal;
     glm::vec3 diffuse;
     float specular;
     // Id used to identify sphere for raytracing
     uint32_t id;
     glm::ivec3 _pad;
+    glm::vec3 v0;
+    int  v0_pad;
+    glm::vec3 v1;
+    int  v1_pad;
+    glm::vec3 v2;
+    int  v2_pad;
   };
-
   
   // SSBO sphere declaration
   struct Sphere {
