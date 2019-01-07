@@ -34,8 +34,8 @@
 #define TEX_DIM 2048
 #endif
 //#define USE_PLANES
-//#define USE_SPHERES
 #define USE_TRIANGLES
+//#define USE_TRIANGLES 1
 class VulkanExample : public VulkanExampleBase {
  public:
   vks::Texture textureComputeTarget;
@@ -59,7 +59,7 @@ class VulkanExample : public VulkanExampleBase {
   // Resources for the compute part of the example
   struct {
     struct {
-      // (Shader) storage buffer object with scene spheres
+      // (Shader) storage buffer object with scene triangles
       vks::Buffer spheres;
       // (Shader) storage buffer object with scene planes
       vks::Buffer planes;
@@ -102,25 +102,8 @@ class VulkanExample : public VulkanExampleBase {
     } ubo;
   } compute;
 
-  // SSBO triangle declaration
-  struct Triangle {
-    // Shader uses std140 layout (so we only use vec4 instead of vec3)
-    glm::vec3 normal;
-    glm::vec3 diffuse;
-    float specular;
-    // Id used to identify sphere for raytracing
-    uint32_t id;
-    glm::ivec3 _pad;
-    glm::vec3 v0;
-    int  v0_pad;
-    glm::vec3 v1;
-    int  v1_pad;
-    glm::vec3 v2;
-    int  v2_pad;
-  };
-  
   // SSBO sphere declaration
-  struct Sphere {
+  struct Triangle {
     // Shader uses std140 layout (so we only use vec4 instead of vec3)
     glm::vec3 pos;
     float radius;
@@ -129,6 +112,14 @@ class VulkanExample : public VulkanExampleBase {
     // Id used to identify sphere for raytracing
     uint32_t id;
     glm::ivec3 _pad;
+    glm::vec3 normal;
+    int normal_pad;
+    glm::vec3 v0;
+    int v0_pad;
+    glm::vec3 v1;
+    int v1_pad;
+    glm::vec3 v2;
+    int v2_pad;
   };
 
   // SSBO plane declaration
@@ -173,7 +164,7 @@ class VulkanExample : public VulkanExampleBase {
     compute.uniformBuffer.destroy();
     compute.storageBuffers.spheres.destroy();
     compute.storageBuffers.planes.destroy();
-
+    compute.storageBuffers.triangles.destroy();
     textureComputeTarget.destroy();
   }
 
@@ -359,25 +350,33 @@ class VulkanExample : public VulkanExampleBase {
   // Id used to identify objects by the ray tracing shader
   uint32_t currentId = 0;
 
-  Sphere newSphere(glm::vec3 pos,
-                   float radius,
-                   glm::vec3 diffuse,
-                   float specular) {
-    Sphere sphere;
+  Triangle newSphere(glm::vec3 pos,
+                     float radius,
+                     glm::vec3 diffuse,
+                     float specular,
+                     glm::vec3 normal,
+                     glm::vec3 v0,
+                     glm::vec3 v1,
+                     glm::vec3 v2) {
+    Triangle sphere;
     sphere.id = currentId++;
     sphere.pos = pos;
     sphere.radius = radius;
     sphere.diffuse = diffuse;
     sphere.specular = specular;
+    sphere.normal = normal;
+    sphere.v0 = v0;
+    sphere.v1 = v1;
+    sphere.v2 = v2;
     return sphere;
   }
 
   Triangle newTriangle(glm::vec3 v0,
-  	glm::vec3 v1,
-  	glm::vec3 v2,
-  	glm::vec3 normal,
-                   glm::vec3 diffuse,
-                   float specular) {
+                       glm::vec3 v1,
+                       glm::vec3 v2,
+                       glm::vec3 normal,
+                       glm::vec3 diffuse,
+                       float specular) {
     Triangle triangle;
     triangle.id = currentId++;
     triangle.v0 = v0;
@@ -413,52 +412,21 @@ class VulkanExample : public VulkanExampleBase {
 
 #ifdef USE_TRIANGLES
     // Spheres
-    std::vector<Triangle> triangles;
-    triangles.push_back(newTriangle(glm::vec3(0.0f, 0.0f, -4.0f), glm::vec3(0.0f, 2.0f, -4.0f), glm::vec3(1.0f, 0.0f, -4.0f), glm::vec3(0.0f, 0.0f, 1.0f),
-                                glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
+    std::vector<Triangle> spheres;
+    spheres.push_back(newSphere(
+        glm::vec3(0.0f, -0.0f, 0.0f), 1.0f, glm::vec3(1.0f, 0.0f, 0.0f), 32.0f,
+        glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(-1.0f, -1.0f, -4.0f),
+        glm::vec3(1.0f, -1.0f, -4.0f), glm::vec3(0.0f, 1.0f, -4.0f)));
+
+    spheres.push_back(newSphere(
+        glm::vec3(0.0f, -0.0f, 0.0f), 1.0f, glm::vec3(1.0f, 0.0f, 0.0f), 32.0f,
+        glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(1.0f, 1.0f, -4.0f),
+        glm::vec3(0.0f, 1.0f, -4.0f), glm::vec3(1.0f, 0.0f, -4.0f)));
     // spheres.push_back(newSphere(glm::vec3(0.0f, 1.0f, -0.5f), 1.0f,
     // glm::vec3(0.65f, 0.77f, 0.97f), 32.0f));
     // spheres.push_back(newSphere(glm::vec3(-1.75f, -0.75f, -0.5f), 1.25f,
     // glm::vec3(0.9f, 0.76f, 0.46f), 32.0f));
-    storageBufferSize = triangles.size() * sizeof(Triangle);
-
-    vulkanDevice->createBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                                   VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                               &stagingBuffer, storageBufferSize,
-                               triangles.data());
-
-    vulkanDevice->createBuffer(
-        // The SSBO will be used as a storage buffer for the compute pipeline
-        // and as a vertex buffer in the graphics pipeline
-        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
-            VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &compute.storageBuffers.triangles,
-        storageBufferSize);
-
-    // Copy to staging buffer
-    copyCmd = VulkanExampleBase::createCommandBuffer(
-        VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
-    copyRegion = {};
-    copyRegion.size = storageBufferSize;
-    vkCmdCopyBuffer(copyCmd, stagingBuffer.buffer,
-                    compute.storageBuffers.triangles.buffer, 1, &copyRegion);
-    VulkanExampleBase::flushCommandBuffer(copyCmd, queue, true);
-
-    stagingBuffer.destroy();
-#endif
-
-	
-#ifdef USE_SPHERES
-    // Spheres
-    std::vector<Sphere> spheres;
-    spheres.push_back(newSphere(glm::vec3(0.0f, -0.0f, -4.0f), 1.0f,
-                                glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
-    // spheres.push_back(newSphere(glm::vec3(0.0f, 1.0f, -0.5f), 1.0f,
-    // glm::vec3(0.65f, 0.77f, 0.97f), 32.0f));
-    // spheres.push_back(newSphere(glm::vec3(-1.75f, -0.75f, -0.5f), 1.25f,
-    // glm::vec3(0.9f, 0.76f, 0.46f), 32.0f));
-    storageBufferSize = spheres.size() * sizeof(Sphere);
+    storageBufferSize = spheres.size() * sizeof(Triangle);
 
     vulkanDevice->createBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
@@ -545,7 +513,7 @@ class VulkanExample : public VulkanExampleBase {
                                               1),
         // Storage buffer for the scene primitives
         vks::initializers::descriptorPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-                                              2),
+                                              1),
     };
 
     VkDescriptorPoolCreateInfo descriptorPoolInfo =
@@ -692,7 +660,7 @@ class VulkanExample : public VulkanExampleBase {
         // Binding 1: Uniform buffer block
         vks::initializers::descriptorSetLayoutBinding(
             VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1),
-#ifdef USE_SPHERES
+#ifdef USE_TRIANGLES
         // Binding 1: Shader storage buffer for the spheres
         vks::initializers::descriptorSetLayoutBinding(
             VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 2),
@@ -734,7 +702,7 @@ class VulkanExample : public VulkanExampleBase {
         vks::initializers::writeDescriptorSet(
             compute.descriptorSet, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
             &compute.uniformBuffer.descriptor),
-#ifdef USE_SPHERES
+#ifdef USE_TRIANGLES
         // Binding 2: Shader storage buffer for the spheres
         vks::initializers::writeDescriptorSet(
             compute.descriptorSet, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 2,
@@ -755,9 +723,9 @@ class VulkanExample : public VulkanExampleBase {
     VkComputePipelineCreateInfo computePipelineCreateInfo =
         vks::initializers::computePipelineCreateInfo(compute.pipelineLayout, 0);
 
-    computePipelineCreateInfo.stage =
-        loadShader(getAssetPath() + "shaders/raytracing_triangle/raytracing.comp.spv",
-                   VK_SHADER_STAGE_COMPUTE_BIT);
+    computePipelineCreateInfo.stage = loadShader(
+        getAssetPath() + "shaders/raytracing_triangle/raytracing.comp.spv",
+        VK_SHADER_STAGE_COMPUTE_BIT);
     VK_CHECK_RESULT(vkCreateComputePipelines(device, pipelineCache, 1,
                                              &computePipelineCreateInfo,
                                              nullptr, &compute.pipeline));
@@ -816,7 +784,7 @@ class VulkanExample : public VulkanExampleBase {
     // cos(glm::radians(timer * 360.0f)) * 2.0f;
     compute.ubo.lightPos.y = 0.0f;
     // sin(glm::radians(timer * 360.0f)) * 2.0f;
-    compute.ubo.lightPos.z = cos(glm::radians(timer * 360.0f)) * 2.0f;
+    compute.ubo.lightPos.z = 0.0f;  // cos(glm::radians(timer * 360.0f)) * 2.0f;
     compute.ubo.camera.pos = glm::vec3(0.0f, -0.0f, 0.0f);
     VK_CHECK_RESULT(compute.uniformBuffer.map());
     memcpy(compute.uniformBuffer.mapped, &compute.ubo, sizeof(compute.ubo));

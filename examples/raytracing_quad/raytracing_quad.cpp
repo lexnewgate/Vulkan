@@ -33,8 +33,9 @@
 #else
 #define TEX_DIM 2048
 #endif
-#define USE_PLANES
-#define USE_SPHERES
+//#define USE_PLANES
+#define USE_QUADS
+//#define USE_SPHERES
 class VulkanExample : public VulkanExampleBase {
  public:
   vks::Texture textureComputeTarget;
@@ -119,6 +120,27 @@ class VulkanExample : public VulkanExampleBase {
     float specular;
     uint32_t id;
     glm::ivec3 _pad;
+  };
+
+  struct Quad {
+    // Shader uses std140 layout (so we only use vec4 instead of vec3)
+    glm::vec3 pos;
+    float radius;
+    glm::vec3 diffuse;
+    float specular;
+    // Id used to identify sphere for raytracing
+    uint32_t id;
+    glm::ivec3 _pad;
+    glm::vec3 normal;
+    int normal_pad;
+    glm::vec3 v0;
+    int v0_pad;
+    glm::vec3 v1;
+    int v1_pad;
+    glm::vec3 v2;
+    int v2_pad;
+    glm::vec3 v3;
+    int v3_pad;
   };
 
   VulkanExample() : VulkanExampleBase(ENABLE_VALIDATION) {
@@ -365,6 +387,27 @@ class VulkanExample : public VulkanExampleBase {
     return plane;
   }
 
+  Quad newQuad(glm::vec3 v0,
+               glm::vec3 v1,
+               glm::vec3 v2,
+               glm::vec3 v3,
+               glm::vec3 normal,
+               glm::vec3 pos,
+               glm::vec3 diffuse,
+               float specular) {
+    Quad quad;
+    quad.id = currentId++;
+    quad.v0 = v0;
+    quad.v1 = v1;
+    quad.v2 = v2;
+    quad.v3 = v3;
+    quad.normal = normal;
+    quad.pos = pos;
+    quad.diffuse = diffuse;
+    quad.specular = specular;
+    return quad;
+  }
+
   // Setup and fill the compute shader storage buffers containing primitives for
   // the raytraced scene
   void prepareStorageBuffers() {
@@ -454,6 +497,46 @@ class VulkanExample : public VulkanExampleBase {
 
     stagingBuffer.destroy();
 #endif
+
+#ifdef USE_QUADS
+    // Planes
+    std::vector<Quad> planes;
+    const float roomDim = 4.0f;
+
+    planes.push_back(
+        newQuad(glm::vec3(-1.0f, -1.0f, 0.0f), glm::vec3(1.0f, -1.0f, 0.0f),
+                glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(-1.0f, 1.0f, .0f),
+                glm::vec3(0.0f, 0.0f, 1.0f),   // normal
+                glm::vec3(0.0f, -0.0f, 0.0f),  // light pos
+                glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
+
+    storageBufferSize = planes.size() * sizeof(Quad);
+
+    // Stage
+    vulkanDevice->createBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                   VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                               &stagingBuffer, storageBufferSize,
+                               planes.data());
+
+    vulkanDevice->createBuffer(
+        // The SSBO will be used as a storage buffer for the compute pipeline
+        // and as a vertex buffer in the graphics pipeline
+        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
+            VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &compute.storageBuffers.planes,
+        storageBufferSize);
+
+    // Copy to staging buffer
+    copyCmd = VulkanExampleBase::createCommandBuffer(
+        VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
+    copyRegion.size = storageBufferSize;
+    vkCmdCopyBuffer(copyCmd, stagingBuffer.buffer,
+                    compute.storageBuffers.planes.buffer, 1, &copyRegion);
+    VulkanExampleBase::flushCommandBuffer(copyCmd, queue, true);
+
+    stagingBuffer.destroy();
+#endif
   }
 
   void setupDescriptorPool() {
@@ -469,7 +552,7 @@ class VulkanExample : public VulkanExampleBase {
                                               1),
         // Storage buffer for the scene primitives
         vks::initializers::descriptorPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-                                              2),
+                                              1),
     };
 
     VkDescriptorPoolCreateInfo descriptorPoolInfo =
@@ -626,6 +709,11 @@ class VulkanExample : public VulkanExampleBase {
         vks::initializers::descriptorSetLayoutBinding(
             VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 3),
 #endif
+#ifdef USE_QUADS
+        // Binding 1: Shader storage buffer for the planes
+        vks::initializers::descriptorSetLayoutBinding(
+            VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 2),
+#endif
     };
 
     VkDescriptorSetLayoutCreateInfo descriptorLayout =
@@ -670,6 +758,12 @@ class VulkanExample : public VulkanExampleBase {
             compute.descriptorSet, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 3,
             &compute.storageBuffers.planes.descriptor)
 #endif
+// Binding 2: Shader storage buffer for the planes
+#ifdef USE_QUADS
+            vks::initializers::writeDescriptorSet(
+                compute.descriptorSet, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 2,
+                &compute.storageBuffers.planes.descriptor)
+#endif
     };
 
     vkUpdateDescriptorSets(device, computeWriteDescriptorSets.size(),
@@ -679,9 +773,9 @@ class VulkanExample : public VulkanExampleBase {
     VkComputePipelineCreateInfo computePipelineCreateInfo =
         vks::initializers::computePipelineCreateInfo(compute.pipelineLayout, 0);
 
-    computePipelineCreateInfo.stage =
-        loadShader(getAssetPath() + "shaders/raytracing/raytracing.comp.spv",
-                   VK_SHADER_STAGE_COMPUTE_BIT);
+    computePipelineCreateInfo.stage = loadShader(
+        getAssetPath() + "shaders/raytracing_quad/raytracing.comp.spv",
+        VK_SHADER_STAGE_COMPUTE_BIT);
     VK_CHECK_RESULT(vkCreateComputePipelines(device, pipelineCache, 1,
                                              &computePipelineCreateInfo,
                                              nullptr, &compute.pipeline));

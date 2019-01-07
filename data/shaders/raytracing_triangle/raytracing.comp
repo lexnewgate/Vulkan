@@ -1,12 +1,13 @@
-// Shader is looseley based on the ray tracing coding session by Inigo Quilez (www.iquilezles.org)
+// Shader is looseley based on the ray tracing coding session by Inigo Quilez
+// (www.iquilezles.org)
 
 #version 450
 
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_ARB_shading_language_420pack : enable
 
-layout (local_size_x = 16, local_size_y = 16) in;
-layout (binding = 0, rgba8) uniform writeonly image2D resultImage;
+layout(local_size_x = 16, local_size_y = 16) in;
+layout(binding = 0, rgba8) uniform writeonly image2D resultImage;
 
 #define EPSILON 0.0001
 #define MAXLEN 1000.0
@@ -16,33 +17,34 @@ layout (binding = 0, rgba8) uniform writeonly image2D resultImage;
 #define REFLECTIONSTRENGTH 0.4
 #define REFLECTIONFALLOFF 0.5
 
-struct Camera 
-{
-  vec3 pos;   
+struct Camera {
+  vec3 pos;
   vec3 lookat;
-  float fov; 
+  float fov;
 };
 
-layout (binding = 1) uniform UBO 
-{
+layout(binding = 1) uniform UBO {
   vec3 lightPos;
   float aspectRatio;
   vec4 fogColor;
   Camera camera;
   mat4 rotMat;
-} ubo;
+}
+ubo;
 
-struct Sphere 
-{
+struct Sphere {
   vec3 pos;
   float radius;
   vec3 diffuse;
   float specular;
   int id;
+  vec3 normal;
+  vec3 v0;
+  vec3 v1;
+  vec3 v2;
 };
 
-struct Plane
-{
+struct Plane {
   vec3 normal;
   float distance;
   vec3 diffuse;
@@ -50,59 +52,33 @@ struct Plane
   int id;
 };
 
-struct Triangle 
-{
-  vec3 normal;
-  vec3 diffuse;
-  float specular;
-  int id;
-  vec3 v0;
-  vec3 v1;
-  vec3 v2;
-
-};
-
 //#define USE_PLANES
-//#define USE_SPHERES
 #define USE_TRIANGLES
+// #define USE_TRIANGLES 1
 
-
-#ifdef USE_SPHERES
-layout (std140, binding = 2) buffer Spheres
-{
-  Sphere spheres[ ];
+#ifdef USE_TRIANGLES
+layout(std140, binding = 2) buffer Spheres {
+  Sphere spheres[];
 };
 #endif
 
 #ifdef USE_PLANES
-layout (std140, binding = 3) buffer Planes
-{
-  Plane planes[ ];
+layout(std140, binding = 3) buffer Planes {
+  Plane planes[];
 };
 #endif
 
-#ifdef USE_TRIANGLES
-layout (std140, binding = 3) buffer Triangles
-{
-  Triangle triangles[ ];
-};
-#endif
-
-
-void reflectRay(inout vec3 rayD, in vec3 mormal)
-{
+void reflectRay(inout vec3 rayD, in vec3 mormal) {
   rayD = rayD + 2.0 * -dot(mormal, rayD) * mormal;
 }
 
 // Lighting =========================================================
 
-float lightDiffuse(vec3 normal, vec3 lightDir) 
-{
+float lightDiffuse(vec3 normal, vec3 lightDir) {
   return clamp(dot(normal, lightDir), 0.1, 1.0);
 }
 
-float lightSpecular(vec3 normal, vec3 lightDir, float specularFactor)
-{
+float lightSpecular(vec3 normal, vec3 lightDir, float specularFactor) {
   vec3 viewVec = normalize(ubo.camera.pos);
   vec3 halfVec = normalize(lightDir + viewVec);
   return pow(clamp(dot(normal, halfVec), 0.0, 1.0), specularFactor);
@@ -110,14 +86,12 @@ float lightSpecular(vec3 normal, vec3 lightDir, float specularFactor)
 
 // Sphere ===========================================================
 
-float sphereIntersect(in vec3 rayO, in vec3 rayD, in Sphere sphere)
-{
-  vec3 oc = sphere.pos - rayO ;
+float sphereIntersect(in vec3 rayO, in vec3 rayD, in Sphere sphere) {
+  vec3 oc = sphere.pos - rayO;
   float b = 2.0 * dot(oc, rayD);
-  float c = dot(oc, oc) - sphere.radius*sphere.radius;
-  float h = b*b - 4.0*c;
-  if (h < 0.0) 
-  {
+  float c = dot(oc, oc) - sphere.radius * sphere.radius;
+  float h = b * b - 4.0 * c;
+  if (h < 0.0) {
     return -1.0;
   }
   float t = (b - sqrt(h)) / 2.0;
@@ -125,15 +99,13 @@ float sphereIntersect(in vec3 rayO, in vec3 rayD, in Sphere sphere)
   return t;
 }
 
-vec3 sphereNormal(in vec3 pos, in Sphere sphere)
-{
+vec3 sphereNormal(in vec3 pos, in Sphere sphere) {
   return (pos - sphere.pos) / sphere.radius;
 }
 
 // Plane ===========================================================
 
-float planeIntersect(vec3 rayO, vec3 rayD, Plane plane)
-{
+float planeIntersect(vec3 rayO, vec3 rayD, Plane plane) {
   float d = dot(rayD, plane.normal);
 
   if (d == 0.0)
@@ -147,11 +119,8 @@ float planeIntersect(vec3 rayO, vec3 rayD, Plane plane)
   return t;
 }
 
-
-float triangleIntersect(vec3 rayO, vec3 rayD, Triangle triangle)
-{
+float triangleIntersect(vec3 rayO, vec3 rayD, Sphere triangle) {
   float d = dot(rayD, triangle.normal);
-
   if (d == 0.0)
     return 0.0;
   float triangle_distance = 4.0;
@@ -159,215 +128,213 @@ float triangleIntersect(vec3 rayO, vec3 rayD, Triangle triangle)
   if (t < 0.0)
     return 0.0;
 
-  return t;
+#if 1
+  vec3 pos = rayO + t * rayD;
+  float y12 = triangle.v1.y - triangle.v2.y;
+  float y02 = triangle.v0.y - triangle.v2.y;
+  float yp2 = pos.y - triangle.v2.y;
 
-  #if 0
+  float x21 = triangle.v2.x - triangle.v1.x;
+  float x02 = triangle.v0.x - triangle.v2.x;
+  float xp2 = pos.x - triangle.v2.x;
+
+  float denom = y12 * x02 + x21 * y02;
+  float w0 = (y12 * xp2 + x21 * yp2) / denom;
+  if (w0 < 0 || w0 > 1)
+    return 0.0;
+  float w1 = (-y02 * xp2 + x02 * yp2) / denom;
+  if (w1 < 0 || w1 > 1)
+    return 0.0;
+
+  float w2 = 1 - w0 - w1;
+  if (w2 < 0 || w2 > 1)
+    return 0.0;
+
+  return t;
+#endif
+
+#if 0
+/*
+Vec3f edge0 = v1 - v0; 
+Vec3f edge1 = v2 - v1; 
+Vec3f edge2 = v0 - v2; 
+Vec3f C0 = P - v0; 
+Vec3f C1 = P - v1; 
+Vec3f C2 = P - v2; 
+if (dotProduct(N, crossProduct(edge0, C0)) > 0 && 
+    dotProduct(N, crossProduct(edge1, C1)) > 0 && 
+    dotProduct(N, crossProduct(edge2, C2)) > 0) return true; // P is inside the triangle
+
+*/
+
+  //return t;
+  vec3 pos = rayO + t * rayD;
+  //#if 1
   vec3 edge0 = triangle.v1-triangle.v0;
   vec3 edge1 = triangle.v2-triangle.v1;
   vec3 edge2 = triangle.v0-triangle.v2;
 
-  vec3 c0 = rayD-triangle.v0;
-  vec3 c1 = rayD-triangle.v1;
-  vec3 c2 = rayD-triangle.v2;
+  vec3 c0 = pos-triangle.v0;
+  vec3 c1 = pos-triangle.v1;
+  vec3 c2 = pos-triangle.v2;
   float cr0 = dot(triangle.normal, cross(edge0, c0));
   float cr1 = dot(triangle.normal, cross(edge1, c1));
   float cr2 = dot(triangle.normal, cross(edge2, c2));
-  float triangle_distance = 4.0;
-  if ((cr0>0 && cr1>0 && cr2 >0)|| (cr0<0 && cr1<0 && cr2 <0)  )  {
-    float t = -(triangle_distance + dot(rayO, triangle.normal)) / d;
+  //float triangle_distance = 4.0;
+  if ((cr0<0 && cr1<0 && cr2 <0))  {
+    //float t = -(triangle_distance + dot(rayO, triangle.normal)) / d;
     return t;
   }
   else 
   	return 0.0;
-
-  if (d == 0.0)
-    return 0.0;
-
-  float t = -(triangle_distance + dot(rayO, triangle.normal)) / d;
-
-  if (t < 0.0)
-    return 0.0;
-
   return t;
-  #endif
+
+#endif
 }
 
-  
-int intersect(in vec3 rayO, in vec3 rayD, inout float resT)
-{
+int intersect(in vec3 rayO, in vec3 rayD, inout float resT) {
   int id = -1;
-  #ifdef USE_SPHERES
-  for (int i = 0; i < spheres.length(); i++)
-  {
-    float tSphere = sphereIntersect(rayO, rayD, spheres[i]);
-    if ((tSphere > EPSILON) && (tSphere < resT))
-    {
+#ifdef USE_TRIANGLES
+  for (int i = 0; i < spheres.length(); i++) {
+    //
+    float tSphere = triangleIntersect(rayO, rayD, spheres[i]);
+    if ((tSphere > EPSILON) && (tSphere < resT)) {
       id = spheres[i].id;
       resT = tSphere;
     }
-  } 
-  #endif
-
-  #ifdef USE_PLANES
-  for (int i = 0; i < planes.length(); i++)
-  {
-    float tplane = planeIntersect(rayO, rayD, planes[i]);
-    if ((tplane > EPSILON) && (tplane < resT))
-    {
-      id = planes[i].id;
-      resT = tplane;
-    }  
-  }
-  #endif
-
-#ifdef USE_TRIANGLES
-  for (int i = 0; i < triangles.length(); i++)
-  {
-    float tplane = triangleIntersect(rayO, rayD, triangles[i]);
-    if ((tplane > EPSILON) && (tplane < resT))
-    {
-      id = triangles[i].id;
-      resT = tplane;
-    }  
   }
 #endif
 
-  
+#ifdef USE_PLANES
+  for (int i = 0; i < planes.length(); i++) {
+    float tplane = planeIntersect(rayO, rayD, planes[i]);
+    if ((tplane > EPSILON) && (tplane < resT)) {
+      id = planes[i].id;
+      resT = tplane;
+    }
+  }
+#endif
+
   return id;
 }
 
 #ifdef USE_SHADOW
-float calcShadow(in vec3 rayO, in vec3 rayD, in int objectId, inout float t)
-{
-  for (int i = 0; i < spheres.length(); i++)
-  {
+float calcShadow(in vec3 rayO, in vec3 rayD, in int objectId, inout float t) {
+  for (int i = 0; i < spheres.length(); i++) {
     if (spheres[i].id == objectId)
       continue;
     float tSphere = sphereIntersect(rayO, rayD, spheres[i]);
-    if ((tSphere > EPSILON) && (tSphere < t))
-    {
+    if ((tSphere > EPSILON) && (tSphere < t)) {
       t = tSphere;
       return SHADOW;
     }
-  }    
+  }
   return 1.0;
 }
 #endif
 
 #ifdef USE_FOG
-vec3 fog(in float t, in vec3 color)
-{
-  return mix(color, ubo.fogColor.rgb, clamp(sqrt(t*t)/20.0, 0.0, 1.0));
+vec3 fog(in float t, in vec3 color) {
+  return mix(color, ubo.fogColor.rgb, clamp(sqrt(t * t) / 20.0, 0.0, 1.0));
 }
 #endif
 
-vec3 renderScene(inout vec3 rayO, inout vec3 rayD, inout int id)
-{
+vec3 renderScene(inout vec3 rayO, inout vec3 rayD, inout int id) {
   vec3 color = vec3(1.0);
   float t = MAXLEN;
 
   // Get intersected object ID
   int objectID = intersect(rayO, rayD, t);
-  
-  if (objectID == -1)
-  {
-    color = vec3(1.0, 0.0, 0.0);
+
+  // if (0 == spheres[0].id)
+  // return vec3(1.0, 0.0, 0.0);
+
+  if (objectID == -1) {
+    color = vec3(1.0);
     return color;
   }
-  
-  vec3 pos = rayO + t * rayD;
-  vec3 lightVec = normalize(ubo.lightPos - pos);        
-  vec3 normal;
 
-  // Triangles
-  #ifdef USE_TRIANGLES
-  for (int i = 0; i < triangles.length(); i++)
-  {
-    if (objectID == triangles[i].id)
-    {
-      normal = triangles[i].normal;
-      float diffuse = lightDiffuse(normal, lightVec);
-      float specular = lightSpecular(normal, lightVec, triangles[i].specular);
-      color = diffuse * triangles[i].diffuse + specular;  
-      color = vec3(1.0, 0.0, 0.0);
-    }
-  }
-  #endif
-  
+  vec3 pos = rayO + t * rayD;
+  vec3 lightVec = normalize(ubo.lightPos - pos);
+  vec3 normal;
   // Planes
 #ifdef USE_PLANES
-  for (int i = 0; i < planes.length(); i++)
-  {
-    if (objectID == planes[i].id)
-    {
+  for (int i = 0; i < planes.length(); i++) {
+    if (objectID == planes[i].id) {
       normal = planes[i].normal;
       float diffuse = lightDiffuse(normal, lightVec);
       float specular = lightSpecular(normal, lightVec, planes[i].specular);
-      color = diffuse * planes[i].diffuse + specular;  
+      color = diffuse * planes[i].diffuse + specular;
     }
   }
 #endif
 
-  // PSpheres
-  #ifdef USE_SPHERES
-  for (int i = 0; i < spheres.length(); i++)
-  {
-    if (objectID == spheres[i].id)
-    {
-      normal = sphereNormal(pos, spheres[i]);  
+// PSpheres
+#ifdef USE_TRIANGLES
+  for (int i = 0; i < spheres.length(); i++) {
+    if (objectID == spheres[i].id) {
+      normal = spheres[i].normal;  // sphereNormal(pos, spheres[i]);
       float diffuse = lightDiffuse(normal, lightVec);
       float specular = lightSpecular(normal, lightVec, spheres[i].specular);
-      color = diffuse * spheres[i].diffuse + specular;  
+      color = diffuse * spheres[i].diffuse + specular;
+      if (t == 0.0) {
+        return color;
+      }
+      if (t == 1.0) {
+        color = vec3(1.0, 0.0, 0.0);
+        return color;
+      }
     }
   }
-  #endif
+#endif
   if (id == -1)
     return color;
 
   id = objectID;
   t = length(ubo.lightPos - pos);
 
-  #ifdef USE_SHADOW
+#ifdef USE_SHADOW
   // Shadows
   color *= calcShadow(pos, lightVec, id, t);
-  #endif
-  #ifdef USE_FOG
+#endif
+#ifdef USE_FOG
   // Fog
   color = fog(t, color);
-  #endif
+#endif
 
-  #ifdef USE_REFLECT
+#ifdef USE_REFLECT
   // Reflect ray for next render pass
   reflectRay(rayD, normal);
-  #endif
-  rayO = pos;  
-  
+#endif
+  rayO = pos;
+
   return color;
 }
 
-void main()
-{
+void main() {
   ivec2 dim = imageSize(resultImage);
   vec2 uv = vec2(gl_GlobalInvocationID.xy) / dim;
 
   vec3 rayO = ubo.camera.pos;
-  vec3 rayD = normalize(vec3((-1.0 + 2.0 * uv) * vec2(ubo.aspectRatio, 1.0),-sqrt(15)));
+  vec3 rayD = normalize(
+      vec3((-1.0 + 2.0 * uv) * vec2(ubo.aspectRatio, 1.0), -sqrt(15)));
 
   // Basic color path
   int id = 0;
   vec3 finalColor = renderScene(rayO, rayD, id);
-    
+
   // Reflection
-  if (REFLECTIONS)
-  {
+  if (REFLECTIONS) {
     float reflectionStrength = REFLECTIONSTRENGTH;
-    for (int i = 0; i < RAYBOUNCES; i++)
-    {
+    for (int i = 0; i < RAYBOUNCES; i++) {
       vec3 reflectionColor = renderScene(rayO, rayD, id);
-      finalColor = (1.0 - reflectionStrength) * finalColor + reflectionStrength * mix(reflectionColor, finalColor, 1.0 - reflectionStrength);      
+      finalColor = (1.0 - reflectionStrength) * finalColor +
+                   reflectionStrength * mix(reflectionColor, finalColor,
+                                            1.0 - reflectionStrength);
       reflectionStrength *= REFLECTIONFALLOFF;
     }
   }
-      
-  imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(finalColor, 0.0));
+
+  imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy),
+             vec4(finalColor, 0.0));
 }
