@@ -90,6 +90,7 @@ set(EXAMPLES
 	raytracing
     raytracing_plane
     raytracing_quad
+    raytracing_shadow
     raytracing_triangle
 	renderheadless
 	scenerendering
