@@ -414,7 +414,7 @@ class VulkanExample : public VulkanExampleBase {
     // Planes
     std::vector<Plane> planes;
     const float roomDim = 4.0f;
-    #if  0
+#if 0
     planes.push_back(
         newPlane(glm::vec3(0.0f, 1.0f, 0.0f), roomDim, glm::vec3(1.0f), 32.0f));
     planes.push_back(newPlane(glm::vec3(0.0f, -1.0f, 0.0f), roomDim,
@@ -427,11 +427,36 @@ class VulkanExample : public VulkanExampleBase {
                               glm::vec3(1.0f, 0.0f, 0.0f), 32.0f));
     planes.push_back(newPlane(glm::vec3(1.0f, 0.0f, 0.0f), roomDim,
                               glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
-    #endif
-    #if 1
+#endif
+#if 0
     planes.push_back(
         newPlane(glm::vec3(0.0f, 0.0f, 1.0f), roomDim, glm::vec3(1.0f,0.5f,0.5f), 32.0f));
-    #endif
+#endif
+#if 1
+
+    planes.push_back(
+        newPlane(glm::vec3(0.0f, 1.0f, 0.0f), roomDim, glm::vec3(1.0f), 32.0f));
+    planes.push_back(newPlane(glm::vec3(0.0f, -1.0f, 0.0f), roomDim,
+                              glm::vec3(1.0f), 32.0f));
+
+    planes.push_back(newPlane(glm::vec3(0.0f, 0.0f, 1.0f), roomDim,
+                              glm::vec3(0.3f, 0.3f, 0.3f), 32.0f));
+
+    planes.push_back(newPlane(glm::vec3(-1.0f, 0.0f, 0.0f), roomDim,
+                              glm::vec3(1.0f, 0.0f, 0.0f), 32.0f));
+    planes.push_back(newPlane(glm::vec3(1.0f, 0.0f, 0.0f), roomDim,
+                              glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
+
+#endif
+#if 0
+		//const float roomDim = 4.0f;
+		planes.push_back(newPlane(glm::vec3(0.0f, 1.0f, 0.0f), roomDim, glm::vec3(1.0f), 32.0f));
+		planes.push_back(newPlane(glm::vec3(0.0f, -1.0f, 0.0f), roomDim, glm::vec3(1.0f), 32.0f));
+		planes.push_back(newPlane(glm::vec3(0.0f, 0.0f, 1.0f), roomDim, glm::vec3(1.0f), 32.0f));
+		//planes.push_back(newPlane(glm::vec3(0.0f, 0.0f, -1.0f), roomDim, glm::vec3(0.0f), 32.0f));
+		planes.push_back(newPlane(glm::vec3(-1.0f, 0.0f, 0.0f), roomDim, glm::vec3(1.0f, 0.0f, 0.0f), 32.0f));
+		planes.push_back(newPlane(glm::vec3(1.0f, 0.0f, 0.0f), roomDim, glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
+#endif
     storageBufferSize = planes.size() * sizeof(Plane);
 
     // Stage
@@ -684,9 +709,9 @@ class VulkanExample : public VulkanExampleBase {
     VkComputePipelineCreateInfo computePipelineCreateInfo =
         vks::initializers::computePipelineCreateInfo(compute.pipelineLayout, 0);
 
-    computePipelineCreateInfo.stage =
-        loadShader(getAssetPath() + "shaders/raytracing_plane/raytracing.comp.spv",
-                   VK_SHADER_STAGE_COMPUTE_BIT);
+    computePipelineCreateInfo.stage = loadShader(
+        getAssetPath() + "shaders/raytracing_plane/raytracing.comp.spv",
+        VK_SHADER_STAGE_COMPUTE_BIT);
     VK_CHECK_RESULT(vkCreateComputePipelines(device, pipelineCache, 1,
                                              &computePipelineCreateInfo,
                                              nullptr, &compute.pipeline));
@@ -741,12 +766,12 @@ class VulkanExample : public VulkanExampleBase {
 #endif
 #if 1
     // sin(glm::radians(timer * 360.0f)) *
-    compute.ubo.lightPos.x =  sin(glm::radians(timer * 360.0f)) *2.0f;
+    compute.ubo.lightPos.x = sin(glm::radians(timer * 360.0f)) * 2.0f;
     // cos(glm::radians(timer * 360.0f)) * 2.0f;
     compute.ubo.lightPos.y = cos(glm::radians(timer * 360.0f)) * 2.0f;
     // sin(glm::radians(timer * 360.0f)) * 2.0f;
     compute.ubo.lightPos.z = cos(glm::radians(timer * 360.0f)) * 2.0f;
-    compute.ubo.camera.pos = glm::vec3(0.0f, -0.0f, 0.0f);
+    compute.ubo.camera.pos = glm::vec3(0.0f, 0.0f, 0.0f);
     VK_CHECK_RESULT(compute.uniformBuffer.map());
     memcpy(compute.uniformBuffer.mapped, &compute.ubo, sizeof(compute.ubo));
     compute.uniformBuffer.unmap();
