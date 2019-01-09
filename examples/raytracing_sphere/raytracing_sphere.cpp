@@ -376,7 +376,7 @@ class VulkanExample : public VulkanExampleBase {
 #ifdef USE_SPHERES
     // Spheres
     std::vector<Sphere> spheres;
-    spheres.push_back(newSphere(glm::vec3(0.0f, -0.0f, -4.0f), 2.0f,
+    spheres.push_back(newSphere(glm::vec3(0.0f, -0.0f, -4.0f), 1.0f,
                                 glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
     // spheres.push_back(newSphere(glm::vec3(0.0f, 1.0f, -0.5f), 1.0f,
     // glm::vec3(0.65f, 0.77f, 0.97f), 32.0f));
@@ -680,7 +680,7 @@ class VulkanExample : public VulkanExampleBase {
         vks::initializers::computePipelineCreateInfo(compute.pipelineLayout, 0);
 
     computePipelineCreateInfo.stage =
-        loadShader(getAssetPath() + "shaders/raytracing/raytracing.comp.spv",
+        loadShader(getAssetPath() + "shaders/raytracing_sphere/raytracing.comp.spv",
                    VK_SHADER_STAGE_COMPUTE_BIT);
     VK_CHECK_RESULT(vkCreateComputePipelines(device, pipelineCache, 1,
                                              &computePipelineCreateInfo,
