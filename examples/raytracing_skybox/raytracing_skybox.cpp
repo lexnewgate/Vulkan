@@ -710,7 +710,7 @@ class VulkanExample : public VulkanExampleBase {
         vks::initializers::computePipelineCreateInfo(compute.pipelineLayout, 0);
 
     computePipelineCreateInfo.stage = loadShader(
-        getAssetPath() + "shaders/raytracing_plane/raytracing.comp.spv",
+        getAssetPath() + "shaders/raytracing_skybox/raytracing.comp.spv",
         VK_SHADER_STAGE_COMPUTE_BIT);
     VK_CHECK_RESULT(vkCreateComputePipelines(device, pipelineCache, 1,
                                              &computePipelineCreateInfo,
