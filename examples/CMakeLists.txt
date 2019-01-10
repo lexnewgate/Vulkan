@@ -100,7 +100,7 @@ set(EXAMPLES
 	shadowmapping
 	#shadowmappingomni
 	#shadowmappingcascade
-	#skeletalanimation
+	skeletalanimation
 	#specializationconstants
 	#sphericalenvmapping
 	#ssao
