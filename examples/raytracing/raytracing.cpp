@@ -735,11 +735,11 @@ class VulkanExample : public VulkanExampleBase {
 		compute.uniformBuffer.unmap();
 #endif
 #if 1
-    compute.ubo.lightPos.x = 0.0f + sin(glm::radians(timer * 360.0f)) *
-                                        cos(glm::radians(timer * 360.0f)) *
-                                        2.0f;
-    compute.ubo.lightPos.y = 0.0f + sin(glm::radians(timer * 360.0f)) * 2.0f;
-    compute.ubo.lightPos.z = 0.0f + cos(glm::radians(timer * 360.0f)) * 2.0f;
+    compute.ubo.lightPos.x = 0.0f;// + sin(glm::radians(timer * 360.0f)) *
+                                        //cos(glm::radians(timer * 360.0f)) *
+                                        //2.0f;
+    compute.ubo.lightPos.y = 8.0f;// + sin(glm::radians(timer * 360.0f)) * 2.0f;
+    compute.ubo.lightPos.z = 0.0f;// + cos(glm::radians(timer * 360.0f)) * 2.0f;
     compute.ubo.camera.pos = glm::vec3(0.0f, -0.0f, 0.0f);
     VK_CHECK_RESULT(compute.uniformBuffer.map());
     memcpy(compute.uniformBuffer.mapped, &compute.ubo, sizeof(compute.ubo));

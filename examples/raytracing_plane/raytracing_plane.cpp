@@ -470,14 +470,13 @@ class VulkanExample : public VulkanExampleBase {
     planes.push_back(newPlane(glm::vec3(0.0f, 0.0f, -1.0f), roomDim,
                               glm::vec3(1.0f, 0.0f, 0.0f), 32.0f));
 
-    // Left plane. 
+    // Left plane.
     planes.push_back(newPlane(glm::vec3(1.0f, 0.0f, 0.0f), roomDim,
                               glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
 
-    // Right plane. 
+    // Right plane.
     planes.push_back(newPlane(glm::vec3(-1.0f, 0.0f, 0.0f), roomDim,
                               glm::vec3(1.0f, 0.0f, 0.0f), 32.0f));
-
 #endif
     storageBufferSize = planes.size() * sizeof(Plane);
 

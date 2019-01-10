@@ -415,72 +415,33 @@ class VulkanExample : public VulkanExampleBase {
     std::vector<Plane> planes;
     const float roomDim = 4.0f;
 
-    /*
-                    planes.push_back(newPlane(glm::vec3(0.0f, 1.0f, 0.0f),
-       roomDim, glm::vec3(1.0f), 32.0f));
-                    planes.push_back(newPlane(glm::vec3(0.0f, -1.0f, 0.0f),
-       roomDim, glm::vec3(1.0f), 32.0f));
-                    planes.push_back(newPlane(glm::vec3(0.0f, 0.0f, 1.0f),
-       roomDim, glm::vec3(1.0f), 32.0f));
-                    planes.push_back(newPlane(glm::vec3(0.0f, 0.0f, -1.0f),
-       roomDim, glm::vec3(0.0f), 32.0f));
-                    planes.push_back(newPlane(glm::vec3(-1.0f, 0.0f, 0.0f),
-       roomDim, glm::vec3(1.0f, 0.0f, 0.0f), 32.0f));
-                    planes.push_back(newPlane(glm::vec3(1.0f, 0.0f, 0.0f),
-       roomDim, glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
-    */
-
-    // planes.push_back(newPlane(glm::vec3(0.0f, 0.0f, 1.0f), roomDim,
-    //                       glm::vec3(1.0f), 32.0f));
-#if 0
-     planes.push_back(newPlane(glm::vec3(0.0f, 0.0f, 1.0f), roomDim,
-                              glm::vec3(0.0f), 32.0f));
-    planes.push_back(newPlane(glm::vec3(-1.0f, 0.0f, 0.0f), roomDim,
-                              glm::vec3(1.0f, 0.0f, 0.0f), 32.0f));
-    planes.push_back(newPlane(glm::vec3(1.0f, 0.0f, 0.0f), roomDim,
-                              glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
-    planes.push_back(newPlane(glm::vec3(0.0f, 1.0f, 0.0f), roomDim,
-                              glm::vec3(1.0f), 32.0f));
-	planes.push_back(newPlane(glm::vec3(0.0f, -1.0f, 0.0f), roomDim,
-                              glm::vec3(1.0f), 32.0f));
-#endif
 #if 1
-    // const float roomDim = 4.0f;
+    // Bottom plane.
     planes.push_back(
         newPlane(glm::vec3(0.0f, 1.0f, 0.0f), roomDim, glm::vec3(1.0f), 32.0f));
-    planes.push_back(newPlane(glm::vec3(0.0f, -1.0f, 0.0f), roomDim,
-                              glm::vec3(1.0f), 32.0f));
-    planes.push_back(
-        newPlane(glm::vec3(0.0f, 0.0f, 1.0f), roomDim, glm::vec3(1.0f), 32.0f));
-    // planes.push_back(newPlane(glm::vec3(0.0f, 0.0f, -1.0f), roomDim,
-    // glm::vec3(0.0f), 32.0f));
-    planes.push_back(newPlane(glm::vec3(-1.0f, 0.0f, 0.0f), roomDim,
-                              glm::vec3(1.0f, 0.0f, 0.0f), 32.0f));
-    planes.push_back(newPlane(glm::vec3(1.0f, 0.0f, 0.0f), roomDim,
-                              glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
-#endif
 
-#if 0
+    // Top plane.
     planes.push_back(newPlane(glm::vec3(0.0f, -1.0f, 0.0f), roomDim,
-                              glm::vec3(1.0f), 32.0f));
-    planes.push_back(
-        newPlane(glm::vec3(0.0f, 0.0f, 1.0f), roomDim, glm::vec3(1.0f), 32.0f));
+                              glm::vec3(0.8f), 32.0f));
+
+    // Front plane.
+    planes.push_back(newPlane(glm::vec3(0.0f, 0.0f, 1.0f), roomDim,
+                              glm::vec3(0.3f), 32.0f));
+
+    // Back plane. Can not be seen by camera.
     planes.push_back(newPlane(glm::vec3(0.0f, 0.0f, -1.0f), roomDim,
-                              glm::vec3(0.0f), 32.0f));
-    planes.push_back(newPlane(glm::vec3(-1.0f, 0.0f, 0.0f), roomDim,
                               glm::vec3(1.0f, 0.0f, 0.0f), 32.0f));
+
+    // Left plane.
     planes.push_back(newPlane(glm::vec3(1.0f, 0.0f, 0.0f), roomDim,
                               glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
+
+    // Right plane.
+    planes.push_back(newPlane(glm::vec3(-1.0f, 0.0f, 0.0f), roomDim,
+                              glm::vec3(1.0f, 0.0f, 0.0f), 32.0f));
 #endif
+
     storageBufferSize = planes.size() * sizeof(Plane);
-
-    /*
-        #if 1
-        planes.push_back(
-            newPlane(glm::vec3(0.0f, 0.0f, 1.0f), roomDim,
-       glm::vec3(1.0f,0.5f,0.5f), 32.0f)); #endif
-
-    */
 
     // Stage
     vulkanDevice->createBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
@@ -799,7 +760,7 @@ class VulkanExample : public VulkanExampleBase {
     compute.ubo.lightPos.x = 0.0f + sin(glm::radians(timer * 360.0f)) *
                                         cos(glm::radians(timer * 360.0f)) *
                                         2.0f;
-    compute.ubo.lightPos.y = 0.0f + sin(glm::radians(timer * 360.0f)) * 2.0f;
+    compute.ubo.lightPos.y = 8.0f + sin(glm::radians(timer * 360.0f)) * 2.0f;
     compute.ubo.lightPos.z = 0.0f + cos(glm::radians(timer * 360.0f)) * 2.0f;
 #endif
 
