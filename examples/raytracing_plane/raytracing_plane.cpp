@@ -414,48 +414,70 @@ class VulkanExample : public VulkanExampleBase {
     // Planes
     std::vector<Plane> planes;
     const float roomDim = 4.0f;
+
 #if 0
+    // Bottom plane.
     planes.push_back(
         newPlane(glm::vec3(0.0f, 1.0f, 0.0f), roomDim, glm::vec3(1.0f), 32.0f));
-    planes.push_back(newPlane(glm::vec3(0.0f, -1.0f, 0.0f), roomDim,
-                              glm::vec3(1.0f), 32.0f));
-    planes.push_back(
-        newPlane(glm::vec3(0.0f, 0.0f, 1.0f), roomDim, glm::vec3(1.0f), 32.0f));
-    planes.push_back(newPlane(glm::vec3(0.0f, 0.0f, -1.0f), roomDim,
-                              glm::vec3(0.0f), 32.0f));
-    planes.push_back(newPlane(glm::vec3(-1.0f, 0.0f, 0.0f), roomDim,
-                              glm::vec3(1.0f, 0.0f, 0.0f), 32.0f));
-    planes.push_back(newPlane(glm::vec3(1.0f, 0.0f, 0.0f), roomDim,
-                              glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
 #endif
+
 #if 0
+    // Top plane.
     planes.push_back(
-        newPlane(glm::vec3(0.0f, 0.0f, 1.0f), roomDim, glm::vec3(1.0f,0.5f,0.5f), 32.0f));
+        newPlane(glm::vec3(0.0f, -1.0f, 0.0f), roomDim, glm::vec3(0.8f), 32.0f));
 #endif
-#if 1
 
-    planes.push_back(
-        newPlane(glm::vec3(0.0f, 1.0f, 0.0f), roomDim, glm::vec3(1.0f), 32.0f));
-    planes.push_back(newPlane(glm::vec3(0.0f, -1.0f, 0.0f), roomDim,
-                              glm::vec3(1.0f), 32.0f));
-
+#if 0
+    // Front plane.
     planes.push_back(newPlane(glm::vec3(0.0f, 0.0f, 1.0f), roomDim,
                               glm::vec3(0.3f, 0.3f, 0.3f), 32.0f));
+#endif
 
+#if 0
+    // Back plane. Can not be seen by camera.
+    planes.push_back(newPlane(glm::vec3(0.0f, 0.0f, -1.0f), roomDim,
+                              glm::vec3(1.0f, 0.0f, 0.0f), 32.0f));
+#endif
+
+#if 0
+    // Left plane.
+    planes.push_back(newPlane(glm::vec3(1.0f, 0.0f, 0.0f), roomDim,
+                              glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
+#endif
+
+#if 0
+    // Right plane.
     planes.push_back(newPlane(glm::vec3(-1.0f, 0.0f, 0.0f), roomDim,
                               glm::vec3(1.0f, 0.0f, 0.0f), 32.0f));
+
+#endif
+
+
+#if 1
+    // Bottom plane.
+    planes.push_back(
+        newPlane(glm::vec3(0.0f, 1.0f, 0.0f), roomDim, glm::vec3(1.0f), 32.0f));
+
+    // Top plane.
+    planes.push_back(newPlane(glm::vec3(0.0f, -1.0f, 0.0f), roomDim,
+                              glm::vec3(0.8f), 32.0f));
+
+    // Front plane.
+    planes.push_back(newPlane(glm::vec3(0.0f, 0.0f, 1.0f), roomDim,
+                              glm::vec3(0.3f), 32.0f));
+
+    // Back plane. Can not be seen by camera.
+    planes.push_back(newPlane(glm::vec3(0.0f, 0.0f, -1.0f), roomDim,
+                              glm::vec3(1.0f, 0.0f, 0.0f), 32.0f));
+
+    // Left plane. 
     planes.push_back(newPlane(glm::vec3(1.0f, 0.0f, 0.0f), roomDim,
                               glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
 
-#endif
-#if 0
-		//const float roomDim = 4.0f;
-		planes.push_back(newPlane(glm::vec3(0.0f, 1.0f, 0.0f), roomDim, glm::vec3(1.0f), 32.0f));
-		planes.push_back(newPlane(glm::vec3(0.0f, -1.0f, 0.0f), roomDim, glm::vec3(1.0f), 32.0f));
-		planes.push_back(newPlane(glm::vec3(0.0f, 0.0f, 1.0f), roomDim, glm::vec3(1.0f), 32.0f));
-		//planes.push_back(newPlane(glm::vec3(0.0f, 0.0f, -1.0f), roomDim, glm::vec3(0.0f), 32.0f));
-		planes.push_back(newPlane(glm::vec3(-1.0f, 0.0f, 0.0f), roomDim, glm::vec3(1.0f, 0.0f, 0.0f), 32.0f));
-		planes.push_back(newPlane(glm::vec3(1.0f, 0.0f, 0.0f), roomDim, glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
+    // Right plane. 
+    planes.push_back(newPlane(glm::vec3(-1.0f, 0.0f, 0.0f), roomDim,
+                              glm::vec3(1.0f, 0.0f, 0.0f), 32.0f));
+
 #endif
     storageBufferSize = planes.size() * sizeof(Plane);
 
@@ -588,10 +610,10 @@ class VulkanExample : public VulkanExampleBase {
     std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages;
 
     shaderStages[0] =
-        loadShader(getAssetPath() + "shaders/raytracing/texture.vert.spv",
+        loadShader(getAssetPath() + "shaders/raytracing_plane/texture.vert.spv",
                    VK_SHADER_STAGE_VERTEX_BIT);
     shaderStages[1] =
-        loadShader(getAssetPath() + "shaders/raytracing/texture.frag.spv",
+        loadShader(getAssetPath() + "shaders/raytracing_plane/texture.frag.spv",
                    VK_SHADER_STAGE_FRAGMENT_BIT);
 
     VkGraphicsPipelineCreateInfo pipelineCreateInfo =
