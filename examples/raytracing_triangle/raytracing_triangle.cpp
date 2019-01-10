@@ -602,10 +602,10 @@ class VulkanExample : public VulkanExampleBase {
     std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages;
 
     shaderStages[0] =
-        loadShader(getAssetPath() + "shaders/raytracing/texture.vert.spv",
+        loadShader(getAssetPath() + "shaders/raytracing_triangle/texture.vert.spv",
                    VK_SHADER_STAGE_VERTEX_BIT);
     shaderStages[1] =
-        loadShader(getAssetPath() + "shaders/raytracing/texture.frag.spv",
+        loadShader(getAssetPath() + "shaders/raytracing_triangle/texture.frag.spv",
                    VK_SHADER_STAGE_FRAGMENT_BIT);
 
     VkGraphicsPipelineCreateInfo pipelineCreateInfo =

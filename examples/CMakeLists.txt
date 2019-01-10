@@ -40,53 +40,53 @@ function(buildExamples)
 endfunction(buildExamples)
 
 set(EXAMPLES
-	bloom
-	computecloth
-	computecullandlod
-	computeheadless
-	computenbody
-	computeparticles
-	computeshader
-	conditionalrender
-	conservativeraster
-	debugmarker
+	#bloom
+	#computecloth
+	#computecullandlod
+	#computeheadless
+	#computenbody
+	#computeparticles
+	#computeshader
+	#conditionalrender
+	#conservativeraster
+	#debugmarker
 	deferred
-	deferredmultisampling
-	deferredshadows
-	descriptorsets
-	displacement
-	distancefieldfonts
-	dynamicuniformbuffer
-	gears
-	geometryshader
-	hdr
+	#deferredmultisampling
+	#deferredshadows
+	#descriptorsets
+	#displacement
+	#distancefieldfonts
+	#dynamicuniformbuffer
+	#gears
+	#geometryshader
+	#hdr
 	imgui
-	indirectdraw
-	inlineuniformblocks
-	inputattachments
-	instancing
+	#indirectdraw
+	#inlineuniformblocks
+	#inputattachments
+	#instancing
 	mesh
-	multisampling
-	multithreading
-	multiview
-	occlusionquery
-	offscreen
-	parallaxmapping
-	particlefire
-	pbrbasic
-	pbribl
-	pbrtexture
-	pipelines
-	pipelinestatistics
+	#multisampling
+	#multithreading
+	#multiview
+	#occlusionquery
+	#offscreen
+	#parallaxmapping
+	#particlefire
+	#pbrbasic
+	#pbribl
+	#pbrtexture
+	#pipelines
+	#pipelinestatistics
 	projection_perspective_lighting
 	projection_perspective_lookat
 	projection_perspective_quad
 	projection_perspective_quad_novertex
 	projection_perspective_texture
 	projection_perspective_texture_novertex
-	pushconstants
-	pushdescriptors
-	radialblur
+	#pushconstants
+	#pushdescriptors
+	#radialblur
 	raytracing
     raytracing_plane
     raytracing_quad
@@ -94,30 +94,30 @@ set(EXAMPLES
     raytracing_skybox
     raytracing_sphere
     raytracing_triangle
-	renderheadless
-	scenerendering
-	screenshot
+	#renderheadless
+	#scenerendering
+	#screenshot
 	shadowmapping
-	shadowmappingomni
-	shadowmappingcascade
-	skeletalanimation
-	specializationconstants
-	sphericalenvmapping
-	ssao
-	stencilbuffer
+	#shadowmappingomni
+	#shadowmappingcascade
+	#skeletalanimation
+	#specializationconstants
+	#sphericalenvmapping
+	#ssao
+	#stencilbuffer
 	subpasses
-	terraintessellation
-	tessellation
+	#terraintessellation
+	#tessellation
 	textoverlay
 	texture
-	texture3d
-	texturearray
-	texturecubemap
-	texturemipmapgen
-	texturesparseresidency
+	#texture3d
+	#texturearray
+	#texturecubemap
+	#texturemipmapgen
+	#texturesparseresidency
 	triangle
-	viewportarray
-	vulkanscene
+	#viewportarray
+	#vulkanscene
 	vr_lens_distorter
 )
 

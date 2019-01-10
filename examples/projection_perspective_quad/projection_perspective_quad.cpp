@@ -1078,7 +1078,7 @@ public:
 		// Update matrices
 		uboVS.projectionMatrix = glm::perspective(glm::radians(fovY), (float)viewportWidth / (float)viewportHeight, near, far);
 		// TODO (xing.xu): workaround glm::perspective to invert Y.
-		uboVS.projectionMatrix [1][1] * = -1.0f;
+		uboVS.projectionMatrix [1][1]  *= -1.0f;
 		//uboVS.viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, zoom));
 		uboVS.viewMatrix =  glm::mat4(1.0f);
 		uboVS.modelMatrix = glm::mat4(1.0f);
