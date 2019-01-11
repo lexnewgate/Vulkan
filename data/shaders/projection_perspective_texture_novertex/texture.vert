@@ -123,11 +123,15 @@ void main()
     //gl_Position = ubo.projection * ubo.model * vec4(inPos.xyz, 1.0);
     //gl_Position = ubo.projectionMatrix * ubo.viewMatrix * ubo.modelMatrix * vec4(outUV * 2.0f + -1.0f, 0.0f, 1.0f);
 
-    //outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
-    //gl_Position = vec4(outUV * 2.0f + -1.0f, 0.0f, 1.0f);
+    #if 1
+    outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+    gl_Position = vec4(outUV * 2.0f + -1.0f, 0.0f, 1.0f);
+    #endif
 
+    #if 0
     outUV = vec2(uv1[gl_VertexIndex]);
     gl_Position = vec4(positions1[gl_VertexIndex], 0.0f, 1.0f);
+    #endif
     //gl_Position.y = - gl_Position.y;
 
 

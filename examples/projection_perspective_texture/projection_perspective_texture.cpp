@@ -625,21 +625,27 @@ class VulkanExample : public VulkanExampleBase {
     float top_at_any_z = top * Zeye / (-1 * near) * scale;
 
     // Setup vertices for a single uv-mapped quad made from two triangles
-    std::vector<Vertex> vertices = {{{left_at_any_z, bottom_at_any_z, Zeye},
+    std::vector<Vertex> vertices = {
+                                        {{left_at_any_z, top_at_any_z, Zeye},
+                                     {0.0f, 1.0f},
+                                     {0.0f, 0.0f, 1.0f}},
+
+					{{right_at_any_z, top_at_any_z, Zeye},
+					 {1.0f, 1.0f},
+					 {0.0f, 0.0f, 1.0f}},
+
+
+    				    {{left_at_any_z, bottom_at_any_z, Zeye},
                                      {0.0f, 0.0f},
                                      {0.0f, 0.0f, 1.0f}},
                                     {{right_at_any_z, bottom_at_any_z, Zeye},
                                      {1.0f, 0.0f},
                                      {0.0f, 0.0f, 1.0f}},
-                                    {{right_at_any_z, top_at_any_z, Zeye},
-                                     {1.0f, 1.0f},
-                                     {0.0f, 0.0f, 1.0f}},
-                                    {{left_at_any_z, top_at_any_z, Zeye},
-                                     {0.0f, 1.0f},
-                                     {0.0f, 0.0f, 1.0f}}};
+
+	};
 
     // Setup indices
-    std::vector<uint32_t> indices = {0, 1, 2, 2, 3, 0};
+    std::vector<uint32_t> indices = {0, 1, 2};//, 2, 1, 3};
     indexCount = static_cast<uint32_t>(indices.size());
 
     // Create buffers
@@ -867,6 +873,7 @@ class VulkanExample : public VulkanExampleBase {
     uboVS.projection = glm::perspective(
         glm::radians(60.0f), (float)viewportWidth / (float)viewportHeight, near,
         far);
+    uboVS.projection[1][1] *= -1.0f;
     // glm::mat4 viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f,
     // 0.0f, zoom));
     glm::mat4 viewMatrix =
