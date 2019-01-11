@@ -82,6 +82,7 @@ set(EXAMPLES
 	projection_perspective_lookat
 	projection_perspective_quad
 	projection_perspective_quad_novertex
+	projection_perspective_specialfullscreen_quad
 	projection_perspective_texture
 	projection_perspective_texture_novertex
 	#pushconstants
