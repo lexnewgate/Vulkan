@@ -624,6 +624,28 @@ class VulkanExample : public VulkanExampleBase {
     float bottom_at_any_z = bottom * Zeye / (-1 * near) * scale;
     float top_at_any_z = top * Zeye / (-1 * near) * scale;
 
+#if 1 //original
+    // Setup vertices for a single uv-mapped quad made from two triangles
+    std::vector<Vertex> vertices = {
+	{{left_at_any_z, top_at_any_z, Zeye},
+	 {0.0f, 1.0f},
+	 {0.0f, 0.0f, 1.0f}},
+
+	{{right_at_any_z*3, top_at_any_z, Zeye},
+	 {2.0f, 1.0f},
+	 {0.0f, 0.0f, 1.0f}},
+	{{left_at_any_z, bottom_at_any_z*3, Zeye},
+                                     {0.0f, -1.0f},
+                                     {0.0f, 0.0f, 1.0f}},
+
+};
+  
+    // Setup indices
+    std::vector<uint32_t> indices = {0, 1, 2};//, 2, 3, 0};
+ #endif
+
+
+   #if 0 //original
     // Setup vertices for a single uv-mapped quad made from two triangles
     std::vector<Vertex> vertices = {{{left_at_any_z, bottom_at_any_z, Zeye},
                                      {0.0f, 0.0f},
@@ -637,9 +659,10 @@ class VulkanExample : public VulkanExampleBase {
                                     {{left_at_any_z, top_at_any_z, Zeye},
                                      {0.0f, 1.0f},
                                      {0.0f, 0.0f, 1.0f}}};
-
+  
     // Setup indices
     std::vector<uint32_t> indices = {0, 1, 2, 2, 3, 0};
+    #endif
     indexCount = static_cast<uint32_t>(indices.size());
 
     // Create buffers
@@ -824,11 +847,11 @@ class VulkanExample : public VulkanExampleBase {
 
     shaderStages[0] = loadShader(
         getAssetPath() +
-            "shaders/projection_perspective_specialfullscreen_quad/texture.vert.spv",
+            "shaders/projection_perspective_specialfullscreen_texture/texture.vert.spv",
         VK_SHADER_STAGE_VERTEX_BIT);
     shaderStages[1] = loadShader(
         getAssetPath() +
-            "shaders/projection_perspective_specialfullscreen_quad/texture.frag.spv",
+            "shaders/projection_perspective_specialfullscreen_texture/texture.frag.spv",
         VK_SHADER_STAGE_FRAGMENT_BIT);
 
     VkGraphicsPipelineCreateInfo pipelineCreateInfo =
