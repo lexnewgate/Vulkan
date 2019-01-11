@@ -32,17 +32,18 @@ layout(binding = 1) uniform UBO {
 }
 ubo;
 
-struct Sphere {
-  vec3 pos;
-  float radius;
-  vec3 diffuse;
-  float specular;
-  int id;
-  vec3 normal;
+
+struct Triangle {
   vec3 v0;
   vec3 v1;
   vec3 v2;
+  int id;
+  vec3 normal;
+  float distance;
+  vec3 diffuse;
+  float specular;
 };
+
 
 struct Plane {
   vec3 normal;
@@ -57,8 +58,8 @@ struct Plane {
 // #define USE_TRIANGLES 1
 
 #ifdef USE_TRIANGLES
-layout(std140, binding = 2) buffer Spheres {
-  Sphere spheres[];
+layout(std140, binding = 2) buffer Triangles {
+  Triangle triangles[];
 };
 #endif
 
@@ -84,25 +85,6 @@ float lightSpecular(vec3 normal, vec3 lightDir, float specularFactor) {
   return pow(clamp(dot(normal, halfVec), 0.0, 1.0), specularFactor);
 }
 
-// Sphere ===========================================================
-
-float sphereIntersect(in vec3 rayO, in vec3 rayD, in Sphere sphere) {
-  vec3 oc = sphere.pos - rayO;
-  float b = 2.0 * dot(oc, rayD);
-  float c = dot(oc, oc) - sphere.radius * sphere.radius;
-  float h = b * b - 4.0 * c;
-  if (h < 0.0) {
-    return -1.0;
-  }
-  float t = (b - sqrt(h)) / 2.0;
-
-  return t;
-}
-
-vec3 sphereNormal(in vec3 pos, in Sphere sphere) {
-  return (pos - sphere.pos) / sphere.radius;
-}
-
 // Plane ===========================================================
 
 float planeIntersect(vec3 rayO, vec3 rayD, Plane plane) {
@@ -119,16 +101,14 @@ float planeIntersect(vec3 rayO, vec3 rayD, Plane plane) {
   return t;
 }
 
-float triangleIntersect(vec3 rayO, vec3 rayD, Sphere triangle) {
+float triangleIntersect(vec3 rayO, vec3 rayD, Triangle triangle) {
   float d = dot(rayD, triangle.normal);
   if (d == 0.0)
     return 0.0;
-  float triangle_distance = 4.0;
-  float t = -(triangle_distance + dot(rayO, triangle.normal)) / d;
+  float t = -(triangle.distance + dot(rayO, triangle.normal)) / d;
   if (t < 0.0)
     return 0.0;
 
-#if 1
   vec3 pos = rayO + t * rayD;
   float y12 = triangle.v1.y - triangle.v2.y;
   float y02 = triangle.v0.y - triangle.v2.y;
@@ -145,29 +125,24 @@ float triangleIntersect(vec3 rayO, vec3 rayD, Sphere triangle) {
   float w1 = (-y02 * xp2 + x02 * yp2) / denom;
   if (w1 < 0 || w1 > 1)
     return 0.0;
-
   float w2 = 1 - w0 - w1;
   if (w2 < 0 || w2 > 1)
     return 0.0;
 
   return t;
-#endif
+}
+
 
 #if 0
-/*
-Vec3f edge0 = v1 - v0; 
-Vec3f edge1 = v2 - v1; 
-Vec3f edge2 = v0 - v2; 
-Vec3f C0 = P - v0; 
-Vec3f C1 = P - v1; 
-Vec3f C2 = P - v2; 
-if (dotProduct(N, crossProduct(edge0, C0)) > 0 && 
-    dotProduct(N, crossProduct(edge1, C1)) > 0 && 
-    dotProduct(N, crossProduct(edge2, C2)) > 0) return true; // P is inside the triangle
+float triangleIntersect(vec3 rayO, vec3 rayD, Sphere triangle) {
+  float d = dot(rayD, triangle.normal);
+  if (d == 0.0)
+    return 0.0;
+  float triangle_distance = 4.0;
+  float t = -(triangle_distance + dot(rayO, triangle.normal)) / d;
+  if (t < 0.0)
+    return 0.0;
 
-*/
-
-  //return t;
   vec3 pos = rayO + t * rayD;
   //#if 1
   vec3 edge0 = triangle.v1-triangle.v0;
@@ -188,18 +163,19 @@ if (dotProduct(N, crossProduct(edge0, C0)) > 0 &&
   else 
   	return 0.0;
   return t;
-
-#endif
 }
+#endif
+
+
 
 int intersect(in vec3 rayO, in vec3 rayD, inout float resT) {
   int id = -1;
 #ifdef USE_TRIANGLES
-  for (int i = 0; i < spheres.length(); i++) {
+  for (int i = 0; i < triangles.length(); i++) {
     //
-    float tSphere = triangleIntersect(rayO, rayD, spheres[i]);
+    float tSphere = triangleIntersect(rayO, rayD, triangles[i]);
     if ((tSphere > EPSILON) && (tSphere < resT)) {
-      id = spheres[i].id;
+      id = triangles[i].id;
       resT = tSphere;
     }
   }
@@ -220,10 +196,10 @@ int intersect(in vec3 rayO, in vec3 rayD, inout float resT) {
 
 #ifdef USE_SHADOW
 float calcShadow(in vec3 rayO, in vec3 rayD, in int objectId, inout float t) {
-  for (int i = 0; i < spheres.length(); i++) {
-    if (spheres[i].id == objectId)
+  for (int i = 0; i < triangles.length(); i++) {
+    if (triangles[i].id == objectId)
       continue;
-    float tSphere = sphereIntersect(rayO, rayD, spheres[i]);
+    float tSphere = sphereIntersect(rayO, rayD, triangles[i]);
     if ((tSphere > EPSILON) && (tSphere < t)) {
       t = tSphere;
       return SHADOW;
@@ -271,12 +247,12 @@ vec3 renderScene(inout vec3 rayO, inout vec3 rayD, inout int id) {
 
 // PSpheres
 #ifdef USE_TRIANGLES
-  for (int i = 0; i < spheres.length(); i++) {
-    if (objectID == spheres[i].id) {
-      normal = spheres[i].normal;  // sphereNormal(pos, spheres[i]);
+  for (int i = 0; i < triangles.length(); i++) {
+    if (objectID == triangles[i].id) {
+      normal = triangles[i].normal;  // sphereNormal(pos, spheres[i]);
       float diffuse = lightDiffuse(normal, lightVec);
-      float specular = lightSpecular(normal, lightVec, spheres[i].specular);
-      color = diffuse * spheres[i].diffuse + specular;
+      float specular = lightSpecular(normal, lightVec, triangles[i].specular);
+      color = diffuse * triangles[i].diffuse + specular;
       if (t == 0.0) {
         return color;
       }

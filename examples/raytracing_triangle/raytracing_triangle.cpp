@@ -102,25 +102,23 @@ class VulkanExample : public VulkanExampleBase {
     } ubo;
   } compute;
 
-  // SSBO sphere declaration
+
+  // SSBO triangle declaration
   struct Triangle {
     // Shader uses std140 layout (so we only use vec4 instead of vec3)
-    glm::vec3 pos;
-    float radius;
-    glm::vec3 diffuse;
-    float specular;
-    // Id used to identify sphere for raytracing
-    uint32_t id;
-    glm::ivec3 _pad;
-    glm::vec3 normal;
-    int normal_pad;
     glm::vec3 v0;
     int v0_pad;
     glm::vec3 v1;
     int v1_pad;
     glm::vec3 v2;
-    int v2_pad;
+    // Id used to identify sphere for raytracing
+    uint32_t id;
+    glm::vec3 normal;
+    float distance;
+    glm::vec3 diffuse;
+    float specular;
   };
+
 
   // SSBO plane declaration
   struct Plane {
@@ -350,41 +348,22 @@ class VulkanExample : public VulkanExampleBase {
   // Id used to identify objects by the ray tracing shader
   uint32_t currentId = 0;
 
-  Triangle newSphere(glm::vec3 pos,
-                     float radius,
-                     glm::vec3 diffuse,
-                     float specular,
-                     glm::vec3 normal,
-                     glm::vec3 v0,
-                     glm::vec3 v1,
-                     glm::vec3 v2) {
-    Triangle sphere;
-    sphere.id = currentId++;
-    sphere.pos = pos;
-    sphere.radius = radius;
-    sphere.diffuse = diffuse;
-    sphere.specular = specular;
-    sphere.normal = normal;
-    sphere.v0 = v0;
-    sphere.v1 = v1;
-    sphere.v2 = v2;
-    return sphere;
-  }
-
   Triangle newTriangle(glm::vec3 v0,
-                       glm::vec3 v1,
-                       glm::vec3 v2,
-                       glm::vec3 normal,
-                       glm::vec3 diffuse,
-                       float specular) {
+                     glm::vec3 v1,
+                     glm::vec3 v2,
+	                 glm::vec3 normal,
+                     float distance,
+                     glm::vec3 diffuse,
+                     float specular) {
     Triangle triangle;
     triangle.id = currentId++;
+    triangle.distance = distance;
+    triangle.diffuse = diffuse;
+    triangle.specular = specular;
+    triangle.normal = normal;
     triangle.v0 = v0;
     triangle.v1 = v1;
     triangle.v2 = v2;
-    triangle.normal = normal;
-    triangle.diffuse = diffuse;
-    triangle.specular = specular;
     return triangle;
   }
 
@@ -411,28 +390,25 @@ class VulkanExample : public VulkanExampleBase {
     VkBufferCopy copyRegion = {};
 
 #ifdef USE_TRIANGLES
-    // Spheres
-    std::vector<Triangle> spheres;
-    spheres.push_back(newSphere(
-        glm::vec3(0.0f, -0.0f, 0.0f), 1.0f, glm::vec3(1.0f, 0.0f, 0.0f), 32.0f,
-        glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(-1.0f, -1.0f, -4.0f),
-        glm::vec3(1.0f, -1.0f, -4.0f), glm::vec3(0.0f, 1.0f, -4.0f)));
+    // Triangles
+    std::vector<Triangle> triangles;
+    triangles.push_back(newTriangle(
+        glm::vec3(-1.0f, -1.0f, -4.0f),glm::vec3(1.0f, -1.0f, -4.0f), 
+        glm::vec3(0.0f, 1.0f, -4.0f),glm::vec3(0.0f, 0.0f, 1.0f),
+        4.0f, glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
 
-    spheres.push_back(newSphere(
-        glm::vec3(0.0f, -0.0f, 0.0f), 1.0f, glm::vec3(1.0f, 0.0f, 0.0f), 32.0f,
-        glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(1.0f, 1.0f, -4.0f),
-        glm::vec3(0.0f, 1.0f, -4.0f), glm::vec3(1.0f, 0.0f, -4.0f)));
-    // spheres.push_back(newSphere(glm::vec3(0.0f, 1.0f, -0.5f), 1.0f,
-    // glm::vec3(0.65f, 0.77f, 0.97f), 32.0f));
-    // spheres.push_back(newSphere(glm::vec3(-1.75f, -0.75f, -0.5f), 1.25f,
-    // glm::vec3(0.9f, 0.76f, 0.46f), 32.0f));
-    storageBufferSize = spheres.size() * sizeof(Triangle);
+    triangles.push_back(newTriangle(
+		glm::vec3(1.0f, 1.0f, -4.0f), glm::vec3(0.0f, 1.0f, -4.0f), 
+		glm::vec3(1.0f, 0.0f, -4.0f), glm::vec3(0.0f, 0.0f, 1.0f),
+        4.0f, glm::vec3(1.0f, 0.0f, 0.0f), 32.0f));
+
+    storageBufferSize = triangles.size() * sizeof(Triangle);
 
     vulkanDevice->createBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                                    VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                                &stagingBuffer, storageBufferSize,
-                               spheres.data());
+                               triangles.data());
 
     vulkanDevice->createBuffer(
         // The SSBO will be used as a storage buffer for the compute pipeline
