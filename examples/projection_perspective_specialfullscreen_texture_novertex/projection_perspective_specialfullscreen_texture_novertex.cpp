@@ -113,9 +113,6 @@ class VulkanExample : public VulkanExampleBase {
     vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
     vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 
-    vertexBuffer.destroy();
-    indexBuffer.destroy();
-    uniformBufferVS.destroy();
   }
 
   // Enable physical device features required for this example
@@ -590,13 +587,10 @@ class VulkanExample : public VulkanExampleBase {
 
   void setupDescriptorSetLayout() {
     std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings = {
-        // Binding 0 : Vertex shader uniform buffer
-        vks::initializers::descriptorSetLayoutBinding(
-            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 0),
         // Binding 1 : Fragment shader image sampler
         vks::initializers::descriptorSetLayoutBinding(
             VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-            VK_SHADER_STAGE_FRAGMENT_BIT, 1)};
+            VK_SHADER_STAGE_FRAGMENT_BIT, 0)};
 
     VkDescriptorSetLayoutCreateInfo descriptorLayout =
         vks::initializers::descriptorSetLayoutCreateInfo(
@@ -635,11 +629,7 @@ class VulkanExample : public VulkanExampleBase {
     textureDescriptor.imageLayout = texture.imageLayout;
 
     std::vector<VkWriteDescriptorSet> writeDescriptorSets = {
-        // Binding 0 : Vertex shader uniform buffer
-        vks::initializers::writeDescriptorSet(descriptorSet,
-                                              VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                                              0, &uniformBufferVS.descriptor),
-        // Binding 1 : Fragment shader texture sampler
+        // Binding 0 : Fragment shader texture sampler
         //  Fragment shader: layout (binding = 1) uniform sampler2D
         // samplerColor;
         vks::initializers::writeDescriptorSet(
@@ -648,7 +638,7 @@ class VulkanExample : public VulkanExampleBase {
             // image could be split)
             VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
             // Shader binding point 1
-            1,
+            0,
             // Pointer to the descriptor image for our texture.
             &textureDescriptor)};
 
@@ -733,47 +723,10 @@ class VulkanExample : public VulkanExampleBase {
                                               &pipelines.solid));
   }
 
-  // Prepare and initialize uniform buffer containing shader uniforms
-  void prepareUniformBuffers() {
-    // Vertex shader uniform buffer block
-    VK_CHECK_RESULT(
-        vulkanDevice->createBuffer(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                                       VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                                   &uniformBufferVS, sizeof(uboVS), &uboVS));
-
-    updateUniformBuffers();
-  }
-
-  void updateUniformBuffers() {
-    // Vertex shader
-    uboVS.projection = glm::perspective(
-        glm::radians(60.0f), (float)viewportWidth / (float)viewportHeight, near,
-        far);
-    // glm::mat4 viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f,
-    // 0.0f, zoom));
-    glm::mat4 viewMatrix =
-        glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-
-    uboVS.model = viewMatrix;  // * glm::translate(glm::mat4(1.0f), cameraPos);
-    uboVS.model = glm::rotate(uboVS.model, glm::radians(rotation.x),
-                              glm::vec3(1.0f, 0.0f, 0.0f));
-    uboVS.model = glm::rotate(uboVS.model, glm::radians(rotation.y),
-                              glm::vec3(0.0f, 1.0f, 0.0f));
-    uboVS.model = glm::rotate(uboVS.model, glm::radians(rotation.z),
-                              glm::vec3(0.0f, 0.0f, 1.0f));
-    // uboVS.viewPos =  glm::mat4(1.0f);
-    uboVS.viewPos = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
-
-    VK_CHECK_RESULT(uniformBufferVS.map());
-    memcpy(uniformBufferVS.mapped, &uboVS, sizeof(uboVS));
-    uniformBufferVS.unmap();
-  }
 
   void prepare() {
     VulkanExampleBase::prepare();
     loadTexture();
-    prepareUniformBuffers();
     setupDescriptorSetLayout();
     preparePipelines();
     setupDescriptorPool();
@@ -788,13 +741,12 @@ class VulkanExample : public VulkanExampleBase {
     draw();
   }
 
-  virtual void viewChanged() { updateUniformBuffers(); }
+  virtual void viewChanged() {  }
 
   virtual void OnUpdateUIOverlay(vks::UIOverlay* overlay) {
     if (overlay->header("Settings")) {
       if (overlay->sliderFloat("LOD bias", &uboVS.lodBias, 0.0f,
                                (float)texture.mipLevels)) {
-        updateUniformBuffers();
       }
     }
   }
