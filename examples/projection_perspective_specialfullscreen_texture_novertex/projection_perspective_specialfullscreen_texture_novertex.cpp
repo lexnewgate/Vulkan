@@ -548,14 +548,8 @@ class VulkanExample : public VulkanExampleBase {
       vkCmdBindPipeline(drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
                         pipelines.solid);
 
-      VkDeviceSize offsets[1] = {0};
-      vkCmdBindVertexBuffers(drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1,
-                             &vertexBuffer.buffer, offsets);
-      vkCmdBindIndexBuffer(drawCmdBuffers[i], indexBuffer.buffer, 0,
-                           VK_INDEX_TYPE_UINT32);
-
-      vkCmdDrawIndexed(drawCmdBuffers[i], indexCount, 1, 0, 0, 0);
-      // vkCmdDraw(drawCmdBuffers[i], 3, 1, 0, 0);
+      //vkCmdDrawIndexed(drawCmdBuffers[i], indexCount, 1, 0, 0, 0);
+      vkCmdDraw(drawCmdBuffers[i], 3, 1, 0, 0);
 
       // drawUI(drawCmdBuffers[i]);
 
@@ -576,95 +570,6 @@ class VulkanExample : public VulkanExampleBase {
     VK_CHECK_RESULT(vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE));
 
     VulkanExampleBase::submitFrame();
-  }
-
-  void generateQuad() {
-    aspect = (float)viewportWidth / viewportHeight;
-    float tangent = tan(fovY / 2 * DEG2RAD);
-    height = near * tangent;  // half height of near plane
-    width = height * aspect;  // half width of near plane
-
-    left = -width;
-    right = width;
-    top = height;
-    bottom = -height;
-
-    float scale = 1.00;
-    float left_at_any_z = left * (Zeye) / (-1 * near) * scale;
-    float right_at_any_z = right * (Zeye) / (-1 * near) * scale;
-    float bottom_at_any_z = bottom * (Zeye) / (-1 * near) * scale;
-    float top_at_any_z = top * (Zeye) / (-1 * near) * scale;
-
-    // Setup vertices for a single uv-mapped quad made from two triangles
-    std::vector<Vertex> vertices = {{{left_at_any_z, bottom_at_any_z, Zeye},
-                                     {0.0f, 0.0f},
-                                     {0.0f, 0.0f, 1.0f}},
-                                    {{right_at_any_z, bottom_at_any_z, Zeye},
-                                     {1.0f, 0.0f},
-                                     {0.0f, 0.0f, 1.0f}},
-                                    {{right_at_any_z, top_at_any_z, Zeye},
-                                     {1.0f, 1.0f},
-                                     {0.0f, 0.0f, 1.0f}},
-                                    {{left_at_any_z, top_at_any_z, Zeye},
-                                     {0.0f, 1.0f},
-                                     {0.0f, 0.0f, 1.0f}}};
-
-    // Setup indices
-    std::vector<uint32_t> indices = {0, 1, 2, 2, 3, 0};
-    indexCount = static_cast<uint32_t>(indices.size());
-
-    // Create buffers
-    // For the sake of simplicity we won't stage the vertex data to the gpu
-    // memory Vertex buffer
-    VK_CHECK_RESULT(vulkanDevice->createBuffer(
-        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        &vertexBuffer, vertices.size() * sizeof(Vertex), vertices.data()));
-    // Index buffer
-    VK_CHECK_RESULT(vulkanDevice->createBuffer(
-        VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        &indexBuffer, indices.size() * sizeof(uint32_t), indices.data()));
-  }
-
-  void setupVertexDescriptions() {
-    // Binding description
-    vertices.bindingDescriptions.resize(1);
-    vertices.bindingDescriptions[0] =
-        vks::initializers::vertexInputBindingDescription(
-            VERTEX_BUFFER_BIND_ID, sizeof(Vertex), VK_VERTEX_INPUT_RATE_VERTEX);
-
-    // Attribute descriptions
-    // Describes memory layout and shader positions
-    vertices.attributeDescriptions.resize(3);
-    // Location 0 : Position
-    vertices.attributeDescriptions[0] =
-        vks::initializers::vertexInputAttributeDescription(
-            VERTEX_BUFFER_BIND_ID, 0, VK_FORMAT_R32G32B32_SFLOAT,
-            offsetof(Vertex, pos));
-    // Location 1 : Texture coordinates
-    vertices.attributeDescriptions[1] =
-        vks::initializers::vertexInputAttributeDescription(
-            VERTEX_BUFFER_BIND_ID, 1, VK_FORMAT_R32G32_SFLOAT,
-            offsetof(Vertex, uv));
-    // Location 1 : Vertex normal
-    vertices.attributeDescriptions[2] =
-        vks::initializers::vertexInputAttributeDescription(
-            VERTEX_BUFFER_BIND_ID, 2, VK_FORMAT_R32G32B32_SFLOAT,
-            offsetof(Vertex, normal));
-
-    vertices.inputState =
-        vks::initializers::pipelineVertexInputStateCreateInfo();
-    vertices.inputState.vertexBindingDescriptionCount =
-        static_cast<uint32_t>(vertices.bindingDescriptions.size());
-    vertices.inputState.pVertexBindingDescriptions =
-        vertices.bindingDescriptions.data();
-    vertices.inputState.vertexAttributeDescriptionCount =
-        static_cast<uint32_t>(vertices.attributeDescriptions.size());
-    vertices.inputState.pVertexAttributeDescriptions =
-        vertices.attributeDescriptions.data();
   }
 
   void setupDescriptorPool() {
@@ -803,8 +708,16 @@ class VulkanExample : public VulkanExampleBase {
 
     VkGraphicsPipelineCreateInfo pipelineCreateInfo =
         vks::initializers::pipelineCreateInfo(pipelineLayout, renderPass, 0);
+    VkPipelineVertexInputStateCreateInfo emptyInputState{};
+    emptyInputState.sType =
+        VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    emptyInputState.vertexAttributeDescriptionCount = 0;
+    emptyInputState.pVertexAttributeDescriptions = nullptr;
+    emptyInputState.vertexBindingDescriptionCount = 0;
+    emptyInputState.pVertexBindingDescriptions = nullptr;
 
-    pipelineCreateInfo.pVertexInputState = &vertices.inputState;
+
+    pipelineCreateInfo.pVertexInputState = &emptyInputState;
     pipelineCreateInfo.pInputAssemblyState = &inputAssemblyState;
     pipelineCreateInfo.pRasterizationState = &rasterizationState;
     pipelineCreateInfo.pColorBlendState = &colorBlendState;
@@ -860,8 +773,6 @@ class VulkanExample : public VulkanExampleBase {
   void prepare() {
     VulkanExampleBase::prepare();
     loadTexture();
-    generateQuad();
-    setupVertexDescriptions();
     prepareUniformBuffers();
     setupDescriptorSetLayout();
     preparePipelines();
