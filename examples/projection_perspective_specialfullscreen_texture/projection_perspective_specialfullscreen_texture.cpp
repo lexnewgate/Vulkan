@@ -656,29 +656,26 @@ class VulkanExample : public VulkanExampleBase {
 #if 1  // Works for clock wise.
     // Setup vertices for a single uv-mapped quad made from two triangles
     std::vector<Vertex> vertices = {
-	{{leftAtAnyZ, topAtAnyZ, zEye},
-	 {0.0f, 0.0f},
-	 { 0.0f,
-	   0.0f,
-	   1.0f }},
-
-	{{rightAtAnyZ * 3, topAtAnyZ, zEye},
-	 {2.0f, 0.0f},
-	 { 0.0f,
-	   0.0f,
-	   1.0f }},
-
-	{{leftAtAnyZ, bottomAtAnyZ * 3, zEye},
-	 {0.0f, 2.0f},
-	 { 0.0f,
-	   0.0f,
-	   1.0f }},
+        {{leftAtAnyZ, topAtAnyZ, zEye},
+         {0.0f, 0.0f},
+         { 0.0f,
+           0.0f,
+           1.0f }},
+        {{rightAtAnyZ * 3, topAtAnyZ, zEye},
+         {2.0f, 0.0f},
+         { 0.0f,
+           0.0f,
+           1.0f }},
+        {{leftAtAnyZ, bottomAtAnyZ * 3, zEye},
+         {0.0f, 2.0f},
+         { 0.0f,
+           0.0f,
+           1.0f }},
     };
 
     // Setup indices
     std::vector<uint32_t> indices = {0, 1, 2};  //, 2, 3, 0};
 #endif
-
 
     indexCount = static_cast<uint32_t>(indices.size());
 
@@ -821,147 +818,151 @@ class VulkanExample : public VulkanExampleBase {
                            writeDescriptorSets.data(), 0, NULL);
   }
 
-
-    vkUpdateDescriptorSets(device,
-                           static_cast<uint32_t>(writeDescriptorSets.size()),
-                           writeDescriptorSets.data(), 0, NULL);
-  }
+  vkUpdateDescriptorSets(device,
+                         static_cast<uint32_t>(writeDescriptorSets.size()),
+                         writeDescriptorSets.data(),
+                         0,
+                         NULL);
+}
 
   void preparePipelines() {
-    VkPipelineInputAssemblyStateCreateInfo inputAssemblyState =
-        vks::initializers::pipelineInputAssemblyStateCreateInfo(
-            VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, 0, VK_FALSE);
+  VkPipelineInputAssemblyStateCreateInfo inputAssemblyState =
+      vks::initializers::pipelineInputAssemblyStateCreateInfo(
+          VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, 0, VK_FALSE);
 
-    VkPipelineRasterizationStateCreateInfo rasterizationState =
-        vks::initializers::pipelineRasterizationStateCreateInfo(
-            VK_POLYGON_MODE_FILL, VK_CULL_MODE_BACK_BIT,
-            VK_FRONT_FACE_CLOCKWISE, 0);
+  VkPipelineRasterizationStateCreateInfo rasterizationState =
+      vks::initializers::pipelineRasterizationStateCreateInfo(
+          VK_POLYGON_MODE_FILL, VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_CLOCKWISE,
+          0);
 
-    VkPipelineColorBlendAttachmentState blendAttachmentState =
-        vks::initializers::pipelineColorBlendAttachmentState(0xf, VK_FALSE);
+  VkPipelineColorBlendAttachmentState blendAttachmentState =
+      vks::initializers::pipelineColorBlendAttachmentState(0xf, VK_FALSE);
 
-    VkPipelineColorBlendStateCreateInfo colorBlendState =
-        vks::initializers::pipelineColorBlendStateCreateInfo(
-            1, &blendAttachmentState);
+  VkPipelineColorBlendStateCreateInfo colorBlendState =
+      vks::initializers::pipelineColorBlendStateCreateInfo(
+          1, &blendAttachmentState);
 
-    VkPipelineDepthStencilStateCreateInfo depthStencilState =
-        vks::initializers::pipelineDepthStencilStateCreateInfo(
-            VK_TRUE, VK_TRUE, VK_COMPARE_OP_LESS_OR_EQUAL);
+  VkPipelineDepthStencilStateCreateInfo depthStencilState =
+      vks::initializers::pipelineDepthStencilStateCreateInfo(
+          VK_TRUE, VK_TRUE, VK_COMPARE_OP_LESS_OR_EQUAL);
 
-    VkPipelineViewportStateCreateInfo viewportState =
-        vks::initializers::pipelineViewportStateCreateInfo(1, 1, 0);
+  VkPipelineViewportStateCreateInfo viewportState =
+      vks::initializers::pipelineViewportStateCreateInfo(1, 1, 0);
 
-    VkPipelineMultisampleStateCreateInfo multisampleState =
-        vks::initializers::pipelineMultisampleStateCreateInfo(
-            VK_SAMPLE_COUNT_1_BIT, 0);
+  VkPipelineMultisampleStateCreateInfo multisampleState =
+      vks::initializers::pipelineMultisampleStateCreateInfo(
+          VK_SAMPLE_COUNT_1_BIT, 0);
 
-    std::vector<VkDynamicState> dynamicStateEnables = {
-        VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
-    VkPipelineDynamicStateCreateInfo dynamicState =
-        vks::initializers::pipelineDynamicStateCreateInfo(
-            dynamicStateEnables.data(),
-            static_cast<uint32_t>(dynamicStateEnables.size()), 0);
+  std::vector<VkDynamicState> dynamicStateEnables = {VK_DYNAMIC_STATE_VIEWPORT,
+                                                     VK_DYNAMIC_STATE_SCISSOR};
+  VkPipelineDynamicStateCreateInfo dynamicState =
+      vks::initializers::pipelineDynamicStateCreateInfo(
+          dynamicStateEnables.data(),
+          static_cast<uint32_t>(dynamicStateEnables.size()), 0);
 
-    // Load shaders
-    std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages;
+  // Load shaders
+  std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages;
 
-    shaderStages[0] = loadShader(
-        getAssetPath() +
-            "shaders/projection_perspective_specialfullscreen_texture/"
-            "texture.vert.spv",
-        VK_SHADER_STAGE_VERTEX_BIT);
-    shaderStages[1] = loadShader(
-        getAssetPath() +
-            "shaders/projection_perspective_specialfullscreen_texture/"
-            "texture.frag.spv",
-        VK_SHADER_STAGE_FRAGMENT_BIT);
+  shaderStages[0] =
+      loadShader(getAssetPath() +
+                     "shaders/projection_perspective_specialfullscreen_texture/"
+                     "texture.vert.spv",
+                 VK_SHADER_STAGE_VERTEX_BIT);
+  shaderStages[1] =
+      loadShader(getAssetPath() +
+                     "shaders/projection_perspective_specialfullscreen_texture/"
+                     "texture.frag.spv",
+                 VK_SHADER_STAGE_FRAGMENT_BIT);
 
-    VkGraphicsPipelineCreateInfo pipelineCreateInfo =
-        vks::initializers::pipelineCreateInfo(pipelineLayout, renderPass, 0);
+  VkGraphicsPipelineCreateInfo pipelineCreateInfo =
+      vks::initializers::pipelineCreateInfo(pipelineLayout, renderPass, 0);
 
-    pipelineCreateInfo.pVertexInputState = &vertices.inputState;
-    pipelineCreateInfo.pInputAssemblyState = &inputAssemblyState;
-    pipelineCreateInfo.pRasterizationState = &rasterizationState;
-    pipelineCreateInfo.pColorBlendState = &colorBlendState;
-    pipelineCreateInfo.pMultisampleState = &multisampleState;
-    pipelineCreateInfo.pViewportState = &viewportState;
-    pipelineCreateInfo.pDepthStencilState = &depthStencilState;
-    pipelineCreateInfo.pDynamicState = &dynamicState;
-    pipelineCreateInfo.stageCount = static_cast<uint32_t>(shaderStages.size());
-    pipelineCreateInfo.pStages = shaderStages.data();
+  pipelineCreateInfo.pVertexInputState = &vertices.inputState;
+  pipelineCreateInfo.pInputAssemblyState = &inputAssemblyState;
+  pipelineCreateInfo.pRasterizationState = &rasterizationState;
+  pipelineCreateInfo.pColorBlendState = &colorBlendState;
+  pipelineCreateInfo.pMultisampleState = &multisampleState;
+  pipelineCreateInfo.pViewportState = &viewportState;
+  pipelineCreateInfo.pDepthStencilState = &depthStencilState;
+  pipelineCreateInfo.pDynamicState = &dynamicState;
+  pipelineCreateInfo.stageCount = static_cast<uint32_t>(shaderStages.size());
+  pipelineCreateInfo.pStages = shaderStages.data();
 
-    VK_CHECK_RESULT(vkCreateGraphicsPipelines(device, pipelineCache, 1,
-                                              &pipelineCreateInfo, nullptr,
-                                              &pipelines.solid));
-  }
+  VK_CHECK_RESULT(vkCreateGraphicsPipelines(device, pipelineCache, 1,
+                                            &pipelineCreateInfo, nullptr,
+                                            &pipelines.solid));
+}
 
-  // Prepare and initialize uniform buffer containing shader uniforms
-  void prepareUniformBuffers() {
-    // Vertex shader uniform buffer block
-    VK_CHECK_RESULT(
-        vulkanDevice->createBuffer(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                                       VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                                   &uniformBufferVS, sizeof(uboVS), &uboVS));
+// Prepare and initialize uniform buffer containing shader uniforms
+void prepareUniformBuffers() {
+  // Vertex shader uniform buffer block
+  VK_CHECK_RESULT(
+      vulkanDevice->createBuffer(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                     VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                 &uniformBufferVS, sizeof(uboVS), &uboVS));
 
-    updateUniformBuffers();
-  }
+  updateUniformBuffers();
+}
 
-  void updateUniformBuffers() {
-    // Vertex shader
-    uboVS.projection = glm::perspective(
-        glm::radians(60.0f), (float)viewportWidth / (float)viewportHeight, near,
-        far);
-    uboVS.projection[1][1] *= -1.0f;
-    // glm::mat4 viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f,
-    // 0.0f, zoom));
-    glm::mat4 viewMatrix =
-        glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+void updateUniformBuffers() {
+  // Vertex shader
+  uboVS.projection =
+      glm::perspective(glm::radians(60.0f),
+                       (float)viewportWidth / (float)viewportHeight, near, far);
+  uboVS.projection[1][1] *= -1.0f;
+  // glm::mat4 viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f,
+  // 0.0f, zoom));
+  glm::mat4 viewMatrix =
+      glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 
-    uboVS.model = glm::rotate(uboVS.model, glm::radians(rotation.x),
-                              glm::vec3(1.0f, 0.0f, 0.0f));
-    uboVS.model = glm::rotate(uboVS.model, glm::radians(rotation.y),
-                              glm::vec3(0.0f, 1.0f, 0.0f));
-    uboVS.model = glm::rotate(uboVS.model, glm::radians(rotation.z),
-                              glm::vec3(0.0f, 0.0f, 1.0f));
-    // uboVS.viewPos =  glm::mat4(1.0f);
-    uboVS.viewPos = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+  uboVS.model = glm::rotate(uboVS.model, glm::radians(rotation.x),
+                            glm::vec3(1.0f, 0.0f, 0.0f));
+  uboVS.model = glm::rotate(uboVS.model, glm::radians(rotation.y),
+                            glm::vec3(0.0f, 1.0f, 0.0f));
+  uboVS.model = glm::rotate(uboVS.model, glm::radians(rotation.z),
+                            glm::vec3(0.0f, 0.0f, 1.0f));
+  // uboVS.viewPos =  glm::mat4(1.0f);
+  uboVS.viewPos = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
-    VK_CHECK_RESULT(uniformBufferVS.map());
-    memcpy(uniformBufferVS.mapped, &uboVS, sizeof(uboVS));
-    uniformBufferVS.unmap();
-  }
+  VK_CHECK_RESULT(uniformBufferVS.map());
+  memcpy(uniformBufferVS.mapped, &uboVS, sizeof(uboVS));
+  uniformBufferVS.unmap();
+}
 
-  void prepare() {
-    VulkanExampleBase::prepare();
-    loadTexture();
-    generateQuad();
-    setupVertexDescriptions();
-    prepareUniformBuffers();
-    setupDescriptorSetLayout();
-    preparePipelines();
-    setupDescriptorPool();
-    setupDescriptorSet();
-    buildCommandBuffers();
-    prepared = true;
-  }
+void prepare() {
+  VulkanExampleBase::prepare();
+  loadTexture();
+  generateQuad();
+  setupVertexDescriptions();
+  prepareUniformBuffers();
+  setupDescriptorSetLayout();
+  preparePipelines();
+  setupDescriptorPool();
+  setupDescriptorSet();
+  buildCommandBuffers();
+  prepared = true;
+}
 
-  virtual void render() {
-    if (!prepared)
-      return;
-    draw();
-  }
+virtual void render() {
+  if (!prepared)
+    return;
+  draw();
+}
 
-  virtual void viewChanged() { updateUniformBuffers(); }
+virtual void viewChanged() {
+  updateUniformBuffers();
+}
 
-  virtual void OnUpdateUIOverlay(vks::UIOverlay* overlay) {
-    if (overlay->header("Settings")) {
-      if (overlay->sliderFloat("LOD bias", &uboVS.lodBias, 0.0f,
-                               (float)texture.mipLevels)) {
-        updateUniformBuffers();
-      }
+virtual void OnUpdateUIOverlay(vks::UIOverlay* overlay) {
+  if (overlay->header("Settings")) {
+    if (overlay->sliderFloat("LOD bias", &uboVS.lodBias, 0.0f,
+                             (float)texture.mipLevels)) {
+      updateUniformBuffers();
     }
   }
-};
+}
+}
+;
 
 VULKAN_EXAMPLE_MAIN()
