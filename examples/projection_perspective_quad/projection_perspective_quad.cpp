@@ -41,6 +41,10 @@ static float aspect;
 static float width;
 static float height;
 
+// Fix for Visual Studio 2017.
+#undef far
+#undef near
+
 static float near = 0.1f;
 static float far = 256.0f;
 static float Zeye = -5.0f;
