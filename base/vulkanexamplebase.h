@@ -139,7 +139,7 @@ class VulkanExampleBase {
 
  public:
   bool prepared = false;
-  uint32_t viewportWidth = 1280;
+  uint32_t viewportWidth = 720;
   uint32_t viewportHeight = 720;
 
   vks::UIOverlay UIOverlay;

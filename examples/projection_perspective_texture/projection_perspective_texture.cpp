@@ -619,10 +619,10 @@ class VulkanExample : public VulkanExampleBase {
 
     float scale = 1.00;
     float Zeye = -5.0;
-    float left_at_any_z = left * Zeye / (-1 * near) * scale;
-    float right_at_any_z = right * Zeye / (-1 * near) * scale;
-    float bottom_at_any_z = bottom * Zeye / (-1 * near) * scale;
-    float top_at_any_z = top * Zeye / (-1 * near) * scale;
+    float left_at_any_z = left * Zeye / (-near) * scale;
+    float right_at_any_z = right * Zeye / (-near) * scale;
+    float bottom_at_any_z = bottom * Zeye / (-near) * scale;
+    float top_at_any_z = top * Zeye / (-near) * scale;
 
     // Setup vertices for a single uv-mapped quad made from two triangles
     std::vector<Vertex> vertices = {
