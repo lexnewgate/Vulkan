@@ -626,26 +626,25 @@ class VulkanExample : public VulkanExampleBase {
 
     // Setup vertices for a single uv-mapped quad made from two triangles
     std::vector<Vertex> vertices = {
-                                        {{left_at_any_z, top_at_any_z, Zeye},
-                                     {0.0f, 1.0f},
-                                     {0.0f, 0.0f, 1.0f}},
+        {{left_at_any_z, bottom_at_any_z, Zeye},
+         {0.0f, 1.0f},
+         {1.0f, 0.0f, 1.0f}},
 
-					{{right_at_any_z, top_at_any_z, Zeye},
-					 {1.0f, 1.0f},
-					 {0.0f, 0.0f, 1.0f}},
+        {{right_at_any_z, bottom_at_any_z, Zeye},
+         {1.0f, 1.0f},
+         {1.0f, 1.0f, 1.0f}},
 
+        {{right_at_any_z, top_at_any_z, Zeye},
+         {1.0f, 0.0f},
+         {0.0f, 0.0f, 1.0f}},
 
-    				    {{left_at_any_z, bottom_at_any_z, Zeye},
-                                     {0.0f, 0.0f},
-                                     {0.0f, 0.0f, 1.0f}},
-                                    {{right_at_any_z, bottom_at_any_z, Zeye},
-                                     {1.0f, 0.0f},
-                                     {0.0f, 0.0f, 1.0f}},
-
-	};
+        {{left_at_any_z, top_at_any_z, Zeye}, 
+        {0.0f, 0.0f},
+        {0.0f, 0.0f, 1.0f}},
+    };
 
     // Setup indices
-    std::vector<uint32_t> indices = {0, 1, 2};//, 2, 1, 3};
+    std::vector<uint32_t> indices = {0, 1, 2, 0, 2, 3};
     indexCount = static_cast<uint32_t>(indices.size());
 
     // Create buffers
