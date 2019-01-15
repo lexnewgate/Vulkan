@@ -171,7 +171,7 @@ class VulkanExampleBase {
     bool overlay = false;
   } settings;
 
-  VkClearColorValue defaultClearColor = {{0.025f, 0.025f, 0.025f, 1.0f}};
+  VkClearColorValue defaultClearColor = {{1.0f, 1.0f, 1.0f, 1.0f}};
 
   float zoom = 0;
 
