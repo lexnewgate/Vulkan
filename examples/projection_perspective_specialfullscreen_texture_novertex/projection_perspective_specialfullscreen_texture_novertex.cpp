@@ -745,8 +745,8 @@ public:
 		VkPipelineRasterizationStateCreateInfo rasterizationState =
 			vks::initializers::pipelineRasterizationStateCreateInfo(
 				VK_POLYGON_MODE_FILL,
-				VK_CULL_MODE_FRONT_BIT,
-				VK_FRONT_FACE_COUNTER_CLOCKWISE,
+				VK_CULL_MODE_BACK_BIT,
+				VK_FRONT_FACE_CLOCKWISE,
 				0);
 
 		VkPipelineColorBlendAttachmentState blendAttachmentState =

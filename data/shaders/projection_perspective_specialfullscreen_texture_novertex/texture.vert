@@ -135,8 +135,8 @@ void main()
     //gl_Position.y = - gl_Position.y;
 
 
-    //gl_Position.x = gl_Position.x/3.0f;
-    //gl_Position.y = gl_Position.y/3.0f;
+    gl_Position.x = gl_Position.x/3.0f;
+    gl_Position.y = gl_Position.y/3.0f;
 
 
     vec4 pos = ubo.model * vec4(inPos, 1.0);

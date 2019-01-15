@@ -624,68 +624,62 @@ class VulkanExample : public VulkanExampleBase {
     float bottom_at_any_z = bottom * Zeye / (-1 * near) * scale;
     float top_at_any_z = top * Zeye / (-1 * near) * scale;
 
-#if 1  // original
+#if 0  // Works for counter clock wise.
     // Setup vertices for a single uv-mapped quad made from two triangles
     std::vector<Vertex> vertices = {
-        {{left_at_any_z, top_at_any_z, Zeye},
-         {0.0f, 0.0f},
-         { 0.0f,
-           0.0f,
-           1.0f }},
-        {{right_at_any_z * 3, top_at_any_z, Zeye},
-         {2.0f, 0.0f},
-         { 0.0f,
-           0.0f,
-           1.0f }},
-        {{left_at_any_z, bottom_at_any_z * 3, Zeye},
-         {0.0f, 2.0f},
-         { 0.0f,
-           0.0f,
-           1.0f }},
+	{{left_at_any_z, bottom_at_any_z * 3, Zeye},
+	 {0.0f, 2.0f},
+	 { 0.0f,
+	   0.0f,
+	   1.0f }},
+
+	{{right_at_any_z * 3, top_at_any_z, Zeye},
+	 {2.0f, 0.0f},
+	 { 0.0f,
+	   0.0f,
+	   1.0f }},
+
+
+	{{left_at_any_z, top_at_any_z, Zeye},
+	 {0.0f, 0.0f},
+	 { 0.0f,
+	   0.0f,
+	   1.0f }},
+
+
     };
 
     // Setup indices
     std::vector<uint32_t> indices = {0, 1, 2};  //, 2, 3, 0};
 #endif
 
-#if 0  // original
-       // Setup vertices for a single uv-mapped quad made from two triangles
-	 std::vector<Vertex> vertices = {
-	 {{left_at_any_z, top_at_any_z, Zeye},
-	  {0.0f, 1.0f},
-	  {0.0f, 0.0f, 1.0f}},
- 
-	 {{right_at_any_z*3, top_at_any_z, Zeye},
-	  {2.0f, 1.0f},
-	  {0.0f, 0.0f, 1.0f}},
-	 {{left_at_any_z, bottom_at_any_z*3, Zeye},
-									  {0.0f, -1.0f},
-									  {0.0f, 0.0f, 1.0f}},
- 
- };
-   
-	 // Setup indices
-	 std::vector<uint32_t> indices = {0, 1, 2};//, 2, 3, 0};
+#if 1  // Works for clock wise.
+    // Setup vertices for a single uv-mapped quad made from two triangles
+    std::vector<Vertex> vertices = {
+	{{left_at_any_z, top_at_any_z, Zeye},
+	 {0.0f, 0.0f},
+	 { 0.0f,
+	   0.0f,
+	   1.0f }},
+
+	{{right_at_any_z * 3, top_at_any_z, Zeye},
+	 {2.0f, 0.0f},
+	 { 0.0f,
+	   0.0f,
+	   1.0f }},
+
+	{{left_at_any_z, bottom_at_any_z * 3, Zeye},
+	 {0.0f, 2.0f},
+	 { 0.0f,
+	   0.0f,
+	   1.0f }},
+    };
+
+    // Setup indices
+    std::vector<uint32_t> indices = {0, 1, 2};  //, 2, 3, 0};
 #endif
 
-#if 0  // original
-    // Setup vertices for a single uv-mapped quad made from two triangles
-    std::vector<Vertex> vertices = {{{left_at_any_z, bottom_at_any_z, Zeye},
-                                     {0.0f, 0.0f},
-                                     {0.0f, 0.0f, 1.0f}},
-                                    {{right_at_any_z, bottom_at_any_z, Zeye},
-                                     {1.0f, 0.0f},
-                                     {0.0f, 0.0f, 1.0f}},
-                                    {{right_at_any_z, top_at_any_z, Zeye},
-                                     {1.0f, 1.0f},
-                                     {0.0f, 0.0f, 1.0f}},
-                                    {{left_at_any_z, top_at_any_z, Zeye},
-                                     {0.0f, 1.0f},
-                                     {0.0f, 0.0f, 1.0f}}};
-  
-    // Setup indices
-    std::vector<uint32_t> indices = {0, 1, 2, 2, 3, 0};
-#endif
+
     indexCount = static_cast<uint32_t>(indices.size());
 
     // Create buffers
@@ -837,8 +831,8 @@ class VulkanExample : public VulkanExampleBase {
 
     VkPipelineRasterizationStateCreateInfo rasterizationState =
         vks::initializers::pipelineRasterizationStateCreateInfo(
-            VK_POLYGON_MODE_FILL, VK_CULL_MODE_NONE,
-            VK_FRONT_FACE_COUNTER_CLOCKWISE, 0);
+            VK_POLYGON_MODE_FILL, VK_CULL_MODE_BACK_BIT,
+            VK_FRONT_FACE_CLOCKWISE, 0);
 
     VkPipelineColorBlendAttachmentState blendAttachmentState =
         vks::initializers::pipelineColorBlendAttachmentState(0xf, VK_FALSE);
