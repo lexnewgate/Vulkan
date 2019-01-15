@@ -618,27 +618,27 @@ class VulkanExample : public VulkanExampleBase {
     top = height;
 
     float scale = 1.00;
-    float Zeye = -5.0;
-    float left_at_any_z = left * Zeye / (-near) * scale;
-    float right_at_any_z = right * Zeye / (-near) * scale;
-    float bottom_at_any_z = bottom * Zeye / (-near) * scale;
-    float top_at_any_z = top * Zeye / (-near) * scale;
+    float zEye = -5.0;
+    float leftAtAnyZ = left * zEye / (-near) * scale;
+    float rightAtAnyZ = right * zEye / (-near) * scale;
+    float bottomAtAnyZ = bottom * zEye / (-near) * scale;
+    float topAtAnyZ = top * zEye / (-near) * scale;
 
     // Setup vertices for a single uv-mapped quad made from two triangles
     std::vector<Vertex> vertices = {
-        {{left_at_any_z, bottom_at_any_z, Zeye},
+        {{leftAtAnyZ, bottomAtAnyZ, zEye},
          {0.0f, 1.0f},
          {1.0f, 0.0f, 1.0f}},
 
-        {{right_at_any_z, bottom_at_any_z, Zeye},
+        {{rightAtAnyZ, bottomAtAnyZ, zEye},
          {1.0f, 1.0f},
          {1.0f, 1.0f, 1.0f}},
 
-        {{right_at_any_z, top_at_any_z, Zeye},
+        {{rightAtAnyZ, topAtAnyZ, zEye},
          {1.0f, 0.0f},
          {0.0f, 0.0f, 1.0f}},
 
-        {{left_at_any_z, top_at_any_z, Zeye}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+        {{leftAtAnyZ, topAtAnyZ, zEye}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
     };
 
     // Setup indices

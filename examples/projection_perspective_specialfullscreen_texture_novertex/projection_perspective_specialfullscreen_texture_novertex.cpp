@@ -47,7 +47,7 @@ static float height;
 #undef near
 static float near = 0.01f;
 static float far = 256.0f;
-static float Zeye = 5.0f;
+static float zEye = 5.0f;
 
 #define PI 3.14159265
 float DEG2RAD = PI / 180.0;

@@ -47,7 +47,7 @@ static float height;
 
 static float near = 0.1f;
 static float far = 256.0f;
-static float Zeye = -5.0f;
+static float zEye = -5.0f;
 
 #define PI 3.14159265
 float DEG2RAD = PI / 180.0;
@@ -435,17 +435,17 @@ class VulkanExample : public VulkanExampleBase {
     top = height;
 
     float scale = 1.0;
-    float left_at_any_z = left * Zeye / (-near) * scale;
-    float right_at_any_z = right * Zeye / (-near) * scale;
-    float bottom_at_any_z = bottom * Zeye / (-near) * scale;
-    float top_at_any_z = top * Zeye / (-near) * scale;
+    float leftAtAnyZ = left * zEye / (-near) * scale;
+    float rightAtAnyZ = right * zEye / (-near) * scale;
+    float bottomAtAnyZ = bottom * zEye / (-near) * scale;
+    float topAtAnyZ = top * zEye / (-near) * scale;
 
     // Setup vertices.
     std::vector<Vertex> vertexBuffer = {
-        {{left_at_any_z, bottom_at_any_z, Zeye}, {1.0f, 0.0f, 0.0f}},
-        {{right_at_any_z, bottom_at_any_z, Zeye}, {0.0f, 1.0f, 0.0f}},
-        {{right_at_any_z, top_at_any_z, Zeye}, {0.0f, 0.0f, 1.0f}},
-        {{left_at_any_z, top_at_any_z, Zeye}, {0.0f, 1.0f, 0.0f}}};
+        {{leftAtAnyZ, bottomAtAnyZ, zEye}, {1.0f, 0.0f, 0.0f}},
+        {{rightAtAnyZ, bottomAtAnyZ, zEye}, {0.0f, 1.0f, 0.0f}},
+        {{rightAtAnyZ, topAtAnyZ, zEye}, {0.0f, 0.0f, 1.0f}},
+        {{leftAtAnyZ, topAtAnyZ, zEye}, {0.0f, 1.0f, 0.0f}}};
 
     uint32_t vertexBufferSize =
         static_cast<uint32_t>(vertexBuffer.size()) * sizeof(Vertex);

@@ -567,19 +567,19 @@ public:
 		top = height;
 		
 		float scale = 1.00;
-		float Zeye = -5.0;
-		float left_at_any_z = left*Zeye/(-1*near)*scale;
-		float right_at_any_z = right*Zeye/(-1*near)*scale;
-		float bottom_at_any_z = bottom*Zeye/(-1*near)*scale;
-		float top_at_any_z = top*Zeye/(-1*near)*scale;
+		float zEye = -5.0;
+		float leftAtAnyZ = left*zEye/(-1*near)*scale;
+		float rightAtAnyZ = right*zEye/(-1*near)*scale;
+		float bottomAtAnyZ = bottom*zEye/(-1*near)*scale;
+		float topAtAnyZ = top*zEye/(-1*near)*scale;
 
 		// Setup vertices for a single uv-mapped quad made from two triangles
 		std::vector<Vertex> vertices =
 		{
-			{ {left_at_any_z, bottom_at_any_z, Zeye}, { 0.0f, 0.0f },{ 0.0f, 0.0f, 1.0f } },
-			{ {right_at_any_z,bottom_at_any_z, Zeye}, { 1.0f, 0.0f },{ 0.0f, 0.0f, 1.0f } },
-			{ {right_at_any_z, top_at_any_z, Zeye}, { 1.0f, 1.0f },{ 0.0f, 0.0f, 1.0f } },
-			{ {left_at_any_z, top_at_any_z, Zeye}, { 0.0f, 1.0f },{ 0.0f, 0.0f, 1.0f } }
+			{ {leftAtAnyZ, bottomAtAnyZ, zEye}, { 0.0f, 0.0f },{ 0.0f, 0.0f, 1.0f } },
+			{ {rightAtAnyZ,bottomAtAnyZ, zEye}, { 1.0f, 0.0f },{ 0.0f, 0.0f, 1.0f } },
+			{ {rightAtAnyZ, topAtAnyZ, zEye}, { 1.0f, 1.0f },{ 0.0f, 0.0f, 1.0f } },
+			{ {leftAtAnyZ, topAtAnyZ, zEye}, { 0.0f, 1.0f },{ 0.0f, 0.0f, 1.0f } }
 		};
 
 		// Setup indices

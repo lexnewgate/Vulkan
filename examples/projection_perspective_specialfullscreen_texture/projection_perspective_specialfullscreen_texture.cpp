@@ -618,29 +618,29 @@ class VulkanExample : public VulkanExampleBase {
     top = height;
 
     float scale = 1.00;
-    float Zeye = -5.0;
-    float left_at_any_z = left * Zeye / (-1 * near) * scale;
-    float right_at_any_z = right * Zeye / (-1 * near) * scale;
-    float bottom_at_any_z = bottom * Zeye / (-1 * near) * scale;
-    float top_at_any_z = top * Zeye / (-1 * near) * scale;
+    float zEye = -5.0;
+    float leftAtAnyZ = left * zEye / (-1 * near) * scale;
+    float rightAtAnyZ = right * zEye / (-1 * near) * scale;
+    float bottomAtAnyZ = bottom * zEye / (-1 * near) * scale;
+    float topAtAnyZ = top * zEye / (-1 * near) * scale;
 
 #if 0  // Works for counter clock wise.
     // Setup vertices for a single uv-mapped quad made from two triangles
     std::vector<Vertex> vertices = {
-	{{left_at_any_z, bottom_at_any_z * 3, Zeye},
+	{{leftAtAnyZ, bottomAtAnyZ * 3, zEye},
 	 {0.0f, 2.0f},
 	 { 0.0f,
 	   0.0f,
 	   1.0f }},
 
-	{{right_at_any_z * 3, top_at_any_z, Zeye},
+	{{rightAtAnyZ * 3, topAtAnyZ, zEye},
 	 {2.0f, 0.0f},
 	 { 0.0f,
 	   0.0f,
 	   1.0f }},
 
 
-	{{left_at_any_z, top_at_any_z, Zeye},
+	{{leftAtAnyZ, topAtAnyZ, zEye},
 	 {0.0f, 0.0f},
 	 { 0.0f,
 	   0.0f,
@@ -656,19 +656,19 @@ class VulkanExample : public VulkanExampleBase {
 #if 1  // Works for clock wise.
     // Setup vertices for a single uv-mapped quad made from two triangles
     std::vector<Vertex> vertices = {
-	{{left_at_any_z, top_at_any_z, Zeye},
+	{{leftAtAnyZ, topAtAnyZ, zEye},
 	 {0.0f, 0.0f},
 	 { 0.0f,
 	   0.0f,
 	   1.0f }},
 
-	{{right_at_any_z * 3, top_at_any_z, Zeye},
+	{{rightAtAnyZ * 3, topAtAnyZ, zEye},
 	 {2.0f, 0.0f},
 	 { 0.0f,
 	   0.0f,
 	   1.0f }},
 
-	{{left_at_any_z, bottom_at_any_z * 3, Zeye},
+	{{leftAtAnyZ, bottomAtAnyZ * 3, zEye},
 	 {0.0f, 2.0f},
 	 { 0.0f,
 	   0.0f,
