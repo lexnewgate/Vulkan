@@ -638,9 +638,7 @@ class VulkanExample : public VulkanExampleBase {
          {1.0f, 0.0f},
          {0.0f, 0.0f, 1.0f}},
 
-        {{left_at_any_z, top_at_any_z, Zeye}, 
-        {0.0f, 0.0f},
-        {0.0f, 0.0f, 1.0f}},
+        {{left_at_any_z, top_at_any_z, Zeye}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
     };
 
     // Setup indices
@@ -753,16 +751,15 @@ class VulkanExample : public VulkanExampleBase {
     // Setup a descriptor image info for the current texture to be used as a
     // combined image sampler
     VkDescriptorImageInfo textureDescriptor;
-    textureDescriptor.imageView =
-        texture.view;  // The image's view (images are never directly accessed
-                       // by the shader, but rather through views defining
-                       // subresources)
-    textureDescriptor.sampler =
-        texture.sampler;  // The sampler (Telling the pipeline how to sample the
-                          // texture, including repeat, border, etc.)
-    textureDescriptor.imageLayout =
-        texture.imageLayout;  // The current layout of the image (Note: Should
-                              // always fit the actual use, e.g. shader read)
+    // The image's view (images are never directly accessed by the shader, but
+    // rather through views defining subresources)
+    textureDescriptor.imageView = texture.view;
+    // The sampler (Telling the pipeline how to sample the texture, including
+    // repeat, border, etc.).
+    textureDescriptor.sampler = texture.sampler;
+    // The current layout of the image (Note: Should always fit the actual use,
+    // e.g. shader read).
+    textureDescriptor.imageLayout = texture.imageLayout;
 
     std::vector<VkWriteDescriptorSet> writeDescriptorSets = {
         // Binding 0 : Vertex shader uniform buffer
@@ -774,15 +771,13 @@ class VulkanExample : public VulkanExampleBase {
         // samplerColor;
         vks::initializers::writeDescriptorSet(
             descriptorSet,
-            VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,  // The descriptor set
-                                                        // will use a combined
-                                                        // image sampler
-                                                        // (sampler and image
-                                                        // could be split)
-            1,                   // Shader binding point 1
-            &textureDescriptor)  // Pointer to the descriptor image for our
-                                 // texture
-    };
+            // The descriptor set will use a combined image sampler (sampler and
+            // image could be split)
+            VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+            // Shader binding point 1
+            1,
+            // Pointer to the descriptor image for our texture.
+            &textureDescriptor)};
 
     vkUpdateDescriptorSets(device,
                            static_cast<uint32_t>(writeDescriptorSets.size()),
