@@ -103,7 +103,7 @@ class VulkanExample : public VulkanExampleBase {
   VulkanExample() : VulkanExampleBase(ENABLE_VALIDATION) {
     zoom = 0.0f;
     rotation = {0.0f, 0.0f, 0.0f};
-    title = "Texture loading";
+    title = "Texture mapping";
     settings.overlay = true;
     initGolbalData();
   }
