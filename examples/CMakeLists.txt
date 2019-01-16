@@ -85,6 +85,7 @@ set(EXAMPLES
 	projection_perspective_specialfullscreen_texture
 	projection_perspective_specialfullscreen_texture_novertex
 	projection_perspective_texture
+	projection_perspective_texture_mapping
 	#pushconstants
 	#pushdescriptors
 	#radialblur
