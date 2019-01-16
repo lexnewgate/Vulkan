@@ -625,7 +625,7 @@ class VulkanExample : public VulkanExampleBase {
     float topAtAnyZ = top * zEye / (-near) * scale;
 
     // Setup vertices for a single uv-mapped quad made from two triangles
-    const char* clipMode = "zoom4_translate";
+    const char* clipMode = "bottom_half";
     std::vector<Vertex> vertices;
     if (strncmp(clipMode, "full", sizeof(clipMode)) == 0) {
       vertices = {
@@ -689,6 +689,67 @@ class VulkanExample : public VulkanExampleBase {
 
           {{leftAtAnyZ, topAtAnyZ, zEye},
            {0.0f, 0.0f + texture_translate},
+           {0.0f, 0.0f, 1.0f}},
+      };
+    } else if (strncmp(clipMode, "left_half", sizeof(clipMode)) == 0) {
+      float textureScale = 0.5f;
+      vertices = {
+          {{leftAtAnyZ, bottomAtAnyZ, zEye}, {0.0f, 1.0f}, {1.0f, 0.0f, 1.0f}},
+
+          {{rightAtAnyZ, bottomAtAnyZ, zEye},
+           {1.0f * textureScale, 1.0f},
+           {1.0f, 1.0f, 1.0f}},
+
+          {{rightAtAnyZ, topAtAnyZ, zEye},
+           {1.0f * textureScale, 0.0f},
+           {0.0f, 0.0f, 1.0f}},
+
+          {{leftAtAnyZ, topAtAnyZ, zEye}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+      };
+    } else if (strncmp(clipMode, "right_half", sizeof(clipMode)) == 0) {
+      float textureScale = 0.5f;
+      vertices = {
+          {{leftAtAnyZ, bottomAtAnyZ, zEye},
+           {1.0f * textureScale, 1.0f},
+           {1.0f, 0.0f, 1.0f}},
+
+          {{rightAtAnyZ, bottomAtAnyZ, zEye}, {1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}},
+
+          {{rightAtAnyZ, topAtAnyZ, zEye}, {1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+
+          {{leftAtAnyZ, topAtAnyZ, zEye},
+           {1.0f * textureScale, 0.0f},
+           {0.0f, 0.0f, 1.0f}},
+      };
+
+    } else if (strncmp(clipMode, "top_half", sizeof(clipMode)) == 0) {
+      float textureScale = 0.5;
+      vertices = {
+          {{leftAtAnyZ, bottomAtAnyZ, zEye},
+           {0.0f, 1.0f * textureScale},
+           {1.0f, 0.0f, 1.0f}},
+
+          {{rightAtAnyZ, bottomAtAnyZ, zEye},
+           {1.0f, 1.0f * textureScale},
+           {1.0f, 1.0f, 1.0f}},
+
+          {{rightAtAnyZ, topAtAnyZ, zEye}, {1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+
+          {{leftAtAnyZ, topAtAnyZ, zEye}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+      };
+    } else if (strncmp(clipMode, "bottom_half", sizeof(clipMode)) == 0) {
+      float textureScale = 0.5;
+      vertices = {
+          {{leftAtAnyZ, bottomAtAnyZ, zEye}, {0.0f, 1.0f}, {1.0f, 0.0f, 1.0f}},
+
+          {{rightAtAnyZ, bottomAtAnyZ, zEye}, {1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}},
+
+          {{rightAtAnyZ, topAtAnyZ, zEye},
+           {1.0f, 1.0f * textureScale},
+           {0.0f, 0.0f, 1.0f}},
+
+          {{leftAtAnyZ, topAtAnyZ, zEye},
+           {0.0f, 1.0f * textureScale},
            {0.0f, 0.0f, 1.0f}},
       };
 
