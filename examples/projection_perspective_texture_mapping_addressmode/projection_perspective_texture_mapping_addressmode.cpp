@@ -103,7 +103,7 @@ class VulkanExample : public VulkanExampleBase {
   VulkanExample() : VulkanExampleBase(ENABLE_VALIDATION) {
     zoom = 0.0f;
     rotation = {0.0f, 0.0f, 0.0f};
-    title = "Texture mapping";
+    title = "Texture mapping -VkSamplerAddressMode";
     settings.overlay = true;
     initGolbalData();
   }
@@ -463,6 +463,16 @@ class VulkanExample : public VulkanExampleBase {
     // means you could have multiple sampler objects for the same texture with
     // different settings Note: Similar to the samplers available with
     // OpenGL 3.3
+
+    /*
+    typedef enum VkSamplerAddressMode {
+      VK_SAMPLER_ADDRESS_MODE_REPEAT = 0,
+      VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT = 1,
+      VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE = 2,
+      VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER = 3,
+      VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE = 4,
+    } VkSamplerAddressMode; 
+    */
     VkSamplerCreateInfo sampler = vks::initializers::samplerCreateInfo();
     sampler.magFilter = VK_FILTER_LINEAR;
     sampler.minFilter = VK_FILTER_LINEAR;
@@ -596,17 +606,6 @@ class VulkanExample : public VulkanExampleBase {
   }
 
   void generateQuad() {
-    // TOCLEANUP:
-    /*
-    // Setup vertices for a single uv-mapped quad made from two triangles
-    std::vector<Vertex> vertices =
-    {
-            { {  1.0f,  1.0f, 0.0f }, { 1.0f, 1.0f },{ 0.0f, 0.0f, 1.0f } },
-            { { -1.0f,  1.0f, 0.0f }, { 0.0f, 1.0f },{ 0.0f, 0.0f, 1.0f } },
-            { { -1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 1.0f } },
-            { {  1.0f, -1.0f, 0.0f }, { 1.0f, 0.0f },{ 0.0f, 0.0f, 1.0f } }
-    };
-    */
     aspect = (float)viewportWidth / viewportHeight;
     float tangent = tan(fovY / 2 * DEG2RAD);
     height = near * tangent;  // half height of near plane
