@@ -596,6 +596,17 @@ class VulkanExample : public VulkanExampleBase {
   }
 
   void generateQuad() {
+    // TOCLEANUP:
+    /*
+    // Setup vertices for a single uv-mapped quad made from two triangles
+    std::vector<Vertex> vertices =
+    {
+            { {  1.0f,  1.0f, 0.0f }, { 1.0f, 1.0f },{ 0.0f, 0.0f, 1.0f } },
+            { { -1.0f,  1.0f, 0.0f }, { 0.0f, 1.0f },{ 0.0f, 0.0f, 1.0f } },
+            { { -1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 1.0f } },
+            { {  1.0f, -1.0f, 0.0f }, { 1.0f, 0.0f },{ 0.0f, 0.0f, 1.0f } }
+    };
+    */
     aspect = (float)viewportWidth / viewportHeight;
     float tangent = tan(fovY / 2 * DEG2RAD);
     height = near * tangent;  // half height of near plane
@@ -606,7 +617,7 @@ class VulkanExample : public VulkanExampleBase {
     bottom = -height;
     top = height;
 
-    float scale = 0.7;
+    float scale = 1.00;
     float zEye = -5.0;
     float leftAtAnyZ = left * zEye / (-near) * scale;
     float rightAtAnyZ = right * zEye / (-near) * scale;
@@ -614,7 +625,7 @@ class VulkanExample : public VulkanExampleBase {
     float topAtAnyZ = top * zEye / (-near) * scale;
 
     // Setup vertices for a single uv-mapped quad made from two triangles
-    const char* clipMode = "full";
+    const char* clipMode = "zoom2";
     std::vector<Vertex> vertices;
     if (strncmp(clipMode, "full", sizeof(clipMode)) == 0) {
       vertices = {
@@ -943,11 +954,11 @@ class VulkanExample : public VulkanExampleBase {
 
     shaderStages[0] = loadShader(
         getAssetPath() +
-            "shaders/projection_perspective_texture_mapping_addressmode/texture.vert.spv",
+            "shaders/projection_perspective_texture_mapping/texture.vert.spv",
         VK_SHADER_STAGE_VERTEX_BIT);
     shaderStages[1] = loadShader(
         getAssetPath() +
-            "shaders/projection_perspective_texture_mapping_addressmode/texture.frag.spv",
+            "shaders/projection_perspective_texture_mapping/texture.frag.spv",
         VK_SHADER_STAGE_FRAGMENT_BIT);
 
     VkGraphicsPipelineCreateInfo pipelineCreateInfo =

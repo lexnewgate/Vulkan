@@ -86,6 +86,7 @@ set(EXAMPLES
 	projection_perspective_specialfullscreen_texture_novertex
 	projection_perspective_texture
 	projection_perspective_texture_mapping
+	projection_perspective_texture_mapping_addressmode
     projection_perspective_texture_mapping_notfullscreen_fulltexture
     projection_perspective_texture_mapping_notfullscreen_parttexture
 	#pushconstants
