@@ -638,7 +638,9 @@ class VulkanExample : public VulkanExampleBase {
          {1.0f, 0.0f},
          {0.0f, 0.0f, 1.0f}},
 
-        {{leftAtAnyZ, topAtAnyZ, zEye}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+        {{leftAtAnyZ, topAtAnyZ, zEye},
+          {0.0f, 0.0f},
+          {0.0f, 0.0f, 1.0f}},
     };
 
     // Setup indices
