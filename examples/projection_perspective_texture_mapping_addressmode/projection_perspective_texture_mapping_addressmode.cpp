@@ -474,8 +474,8 @@ class VulkanExample : public VulkanExampleBase {
     } VkSamplerAddressMode; 
     */
     VkSamplerCreateInfo sampler = vks::initializers::samplerCreateInfo();
-    sampler.magFilter = VK_FILTER_LINEAR;
-    sampler.minFilter = VK_FILTER_LINEAR;
+    sampler.magFilter = VK_FILTER_NEAREST;// VK_FILTER_LINEAR;
+    sampler.minFilter = VK_FILTER_NEAREST;//VK_FILTER_LINEAR;
     sampler.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
     sampler.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     sampler.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
@@ -624,7 +624,7 @@ class VulkanExample : public VulkanExampleBase {
     float topAtAnyZ = top * zEye / (-near) * scale;
 
     // Setup vertices for a single uv-mapped quad made from two triangles
-    const char* clipMode = "zoom2";
+    const char* clipMode = "zoom2_translate";
     std::vector<Vertex> vertices;
     if (strncmp(clipMode, "full", sizeof(clipMode)) == 0) {
       vertices = {
@@ -670,6 +670,27 @@ class VulkanExample : public VulkanExampleBase {
 
           {{leftAtAnyZ, topAtAnyZ, zEye}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
       };
+    } else if (strncmp(clipMode, "zoom2_translate", sizeof(clipMode)) == 0) {
+      float textureScale = 4.0f;
+      float texture_translate = -2.0f;
+      vertices = {
+          {{leftAtAnyZ, bottomAtAnyZ, zEye},
+           {0.0f, 1.0f * textureScale + texture_translate},
+           {1.0f, 0.0f, 1.0f}},
+
+          {{rightAtAnyZ, bottomAtAnyZ, zEye},
+           {1.0f * textureScale, 1.0f * textureScale + texture_translate},
+           {1.0f, 1.0f, 1.0f}},
+
+          {{rightAtAnyZ, topAtAnyZ, zEye},
+           {1.0f * textureScale, 0.0f + texture_translate},
+           {0.0f, 0.0f, 1.0f}},
+
+          {{leftAtAnyZ, topAtAnyZ, zEye},
+           {0.0f, 0.0f + texture_translate},
+           {0.0f, 0.0f, 1.0f}},
+      };
+
     } else if (strncmp(clipMode, "zoom4_translate", sizeof(clipMode)) == 0) {
       float textureScale = 4.0f;
       float texture_translate = -3.0f;

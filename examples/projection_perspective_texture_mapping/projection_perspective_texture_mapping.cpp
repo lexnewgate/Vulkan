@@ -625,7 +625,7 @@ class VulkanExample : public VulkanExampleBase {
     float topAtAnyZ = top * zEye / (-near) * scale;
 
     // Setup vertices for a single uv-mapped quad made from two triangles
-    const char* clipMode = "bottom_half";
+    const char* clipMode = "translate";
     std::vector<Vertex> vertices;
     if (strncmp(clipMode, "full", sizeof(clipMode)) == 0) {
       vertices = {
@@ -637,7 +637,19 @@ class VulkanExample : public VulkanExampleBase {
 
           {{leftAtAnyZ, topAtAnyZ, zEye}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
       };
-    } else if (strncmp(clipMode, "zoom2", sizeof(clipMode)) == 0) {
+    }  else if (strncmp(clipMode, "translate", sizeof(clipMode)) == 0) {
+      float texture_translate = -3.0f;
+      vertices = {
+          {{leftAtAnyZ, bottomAtAnyZ, zEye}, {0.0f+texture_translate, 1.0f+texture_translate}, {1.0f, 0.0f, 1.0f}},
+
+          {{rightAtAnyZ, bottomAtAnyZ, zEye}, {1.0f+texture_translate, 1.0f+texture_translate}, {1.0f, 1.0f, 1.0f}},
+
+          {{rightAtAnyZ, topAtAnyZ, zEye}, {1.0f+texture_translate, 0.0f+texture_translate}, {0.0f, 0.0f, 1.0f}},
+
+          {{leftAtAnyZ, topAtAnyZ, zEye}, {0.0f+texture_translate, 0.0f+texture_translate}, {0.0f, 0.0f, 1.0f}},
+      };
+    }
+	else if (strncmp(clipMode, "zoom2", sizeof(clipMode)) == 0) {
       float textureScale = 2.0;
       vertices = {
           {{leftAtAnyZ, bottomAtAnyZ, zEye},
