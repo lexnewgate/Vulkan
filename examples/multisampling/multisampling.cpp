@@ -82,7 +82,7 @@ public:
 	{
 		title = "Multisampling";
 		camera.type = Camera::CameraType::lookat;
-		camera.setPerspective(60.0f, (float)width / (float)height, 0.1f, 256.0f);
+		camera.setPerspective(60.0f, (float)viewportWidth / (float)viewportHeight, 0.1f, 256.0f);
 		camera.setRotation(glm::vec3(0.0f, -90.0f, 0.0f));
 		camera.setTranslation(glm::vec3(2.5f, 2.5f, -7.5f));
 		settings.overlay = true;
@@ -143,8 +143,8 @@ public:
 		VkImageCreateInfo info = vks::initializers::imageCreateInfo();
 		info.imageType = VK_IMAGE_TYPE_2D;
 		info.format = swapChain.colorFormat;
-		info.extent.width = width;
-		info.extent.height = height;
+		info.extent.width = viewportWidth;
+		info.extent.height = viewportHeight;
 		info.extent.depth = 1;
 		info.mipLevels = 1;
 		info.arrayLayers = 1;
@@ -191,8 +191,8 @@ public:
 		// Depth target
 		info.imageType = VK_IMAGE_TYPE_2D;
 		info.format = depthFormat;
-		info.extent.width = width;
-		info.extent.height = height;
+		info.extent.width = viewportWidth;
+		info.extent.height = viewportHeight;
 		info.extent.depth = 1;
 		info.mipLevels = 1;
 		info.arrayLayers = 1;
@@ -355,8 +355,8 @@ public:
 		frameBufferCreateInfo.renderPass = renderPass;
 		frameBufferCreateInfo.attachmentCount = attachments.size();
 		frameBufferCreateInfo.pAttachments = attachments.data();
-		frameBufferCreateInfo.width = width;
-		frameBufferCreateInfo.height = height;
+		frameBufferCreateInfo.width = viewportWidth;
+		frameBufferCreateInfo.height = viewportHeight;
 		frameBufferCreateInfo.layers = 1;
 
 		// Create frame buffers for every swap chain image
@@ -380,8 +380,8 @@ public:
 
 		VkRenderPassBeginInfo renderPassBeginInfo = vks::initializers::renderPassBeginInfo();
 		renderPassBeginInfo.renderPass = renderPass;
-		renderPassBeginInfo.renderArea.extent.width = width;
-		renderPassBeginInfo.renderArea.extent.height = height;
+		renderPassBeginInfo.renderArea.extent.width = viewportWidth;
+		renderPassBeginInfo.renderArea.extent.height = viewportHeight;
 		renderPassBeginInfo.clearValueCount = 3;
 		renderPassBeginInfo.pClearValues = clearValues;
 
@@ -394,10 +394,10 @@ public:
 
 			vkCmdBeginRenderPass(drawCmdBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-			VkViewport viewport = vks::initializers::viewport((float)width, (float)height, 0.0f, 1.0f);
+			VkViewport viewport = vks::initializers::viewport((float)viewportWidth, (float)viewportHeight, 0.0f, 1.0f);
 			vkCmdSetViewport(drawCmdBuffers[i], 0, 1, &viewport);
 
-			VkRect2D scissor = vks::initializers::rect2D(width, height, 0, 0);
+			VkRect2D scissor = vks::initializers::rect2D(viewportWidth, viewportHeight, 0, 0);
 			vkCmdSetScissor(drawCmdBuffers[i], 0, 1, &scissor);
 
 			vkCmdBindDescriptorSets(drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet, 0, NULL);

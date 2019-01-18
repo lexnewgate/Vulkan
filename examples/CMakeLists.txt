@@ -66,7 +66,7 @@ set(EXAMPLES
 	#inputattachments
 	#instancing
 	mesh
-	#multisampling
+	multisampling
 	#multithreading
 	#multiview
 	#occlusionquery
