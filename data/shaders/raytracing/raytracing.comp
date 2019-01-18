@@ -162,12 +162,21 @@ vec3 fog(in float t, in vec3 color) {
 }
 #endif
 
+// Ray generation shader
+vec3 rayGen () {
+  ivec2 dim = imageSize(resultImage);
+  vec2 uv = vec2(gl_GlobalInvocationID.xy) / dim;
+  vec3 rayD =
+      normalize(vec3((-1.0 + 2.0 * uv) * vec2(ubo.aspectRatio, 1.0), -0.3));
+  return rayD;
+}
+
 // Closest hit shader
 vec3 closestHit(in vec3 lightVec, in vec3 normal, in vec3 difuse, float specular) {
-	float diff = lightDiffuse(normal, lightVec);
-	float spec = lightSpecular(normal, lightVec, specular);
-	vec3 color = diff * difuse + spec;
-	return color;
+  float diff = lightDiffuse(normal, lightVec);
+  float spec = lightSpecular(normal, lightVec, specular);
+  vec3 color = diff * difuse + spec;
+  return color;
 }
 
 vec3 renderScene(inout vec3 rayO, inout vec3 rayD, inout int id) {
@@ -236,15 +245,6 @@ vec3 renderScene(inout vec3 rayO, inout vec3 rayD, inout int id) {
   rayO = pos;
 
   return color;
-}
-
-// Ray generation shader
-vec3 rayGen () {
-  ivec2 dim = imageSize(resultImage);
-  vec2 uv = vec2(gl_GlobalInvocationID.xy) / dim;
-  vec3 rayD =
-      normalize(vec3((-1.0 + 2.0 * uv) * vec2(ubo.aspectRatio, 1.0), -0.3));
-  return rayD;
 }
 
 void main() {

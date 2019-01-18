@@ -215,6 +215,23 @@ vec3 fog(in float t, in vec3 color) {
 }
 #endif
 
+// Ray generation shader
+vec3 rayGen () {
+  ivec2 dim = imageSize(resultImage);
+  vec2 uv = vec2(gl_GlobalInvocationID.xy) / dim;
+  vec3 rayD =
+      normalize(vec3((-1.0 + 2.0 * uv) * vec2(ubo.aspectRatio, 1.0), -sqrt(15)));
+  return rayD;
+}
+
+// Closest hit shader
+vec3 closestHit(in vec3 lightVec, in vec3 normal, in vec3 difuse, float specular) {
+  float diff = lightDiffuse(normal, lightVec);
+  float spec = lightSpecular(normal, lightVec, specular);
+  vec3 color = diff * difuse + spec;
+  return color;
+}
+
 vec3 renderScene(inout vec3 rayO, inout vec3 rayD, inout int id) {
   vec3 color = vec3(1.0);
   float t = MAXLEN;
@@ -238,9 +255,12 @@ vec3 renderScene(inout vec3 rayO, inout vec3 rayD, inout int id) {
   for (int i = 0; i < planes.length(); i++) {
     if (objectID == planes[i].id) {
       normal = planes[i].normal;
-      float diffuse = lightDiffuse(normal, lightVec);
+      #if 0
+      float diffuse = lightDiffuse(normal, lightVec) - dot(rayD, normal);
       float specular = lightSpecular(normal, lightVec, planes[i].specular);
       color = diffuse * planes[i].diffuse + specular;
+      #endif
+      color = closestHit(lightVec, normal, planes[i].diffuse, planes[i].specular);
     }
   }
 #endif
@@ -249,10 +269,13 @@ vec3 renderScene(inout vec3 rayO, inout vec3 rayD, inout int id) {
 #ifdef USE_TRIANGLES
   for (int i = 0; i < triangles.length(); i++) {
     if (objectID == triangles[i].id) {
-      normal = triangles[i].normal;  // sphereNormal(pos, spheres[i]);
-      float diffuse = lightDiffuse(normal, lightVec);
-      float specular = lightSpecular(normal, lightVec, triangles[i].specular);
-      color = diffuse * triangles[i].diffuse + specular;
+      normal = triangles[i].normal;
+      #if 0
+      float diffuse = lightDiffuse(normal, lightVec) - dot(rayD, normal);
+      float specular = lightSpecular(normal, lightVec, planes[i].specular);
+      color = diffuse * planes[i].diffuse + specular;
+      #endif
+      color = closestHit(lightVec, normal, triangles[i].diffuse, triangles[i].specular);
       if (t == 0.0) {
         return color;
       }
@@ -288,12 +311,8 @@ vec3 renderScene(inout vec3 rayO, inout vec3 rayD, inout int id) {
 }
 
 void main() {
-  ivec2 dim = imageSize(resultImage);
-  vec2 uv = vec2(gl_GlobalInvocationID.xy) / dim;
-
   vec3 rayO = ubo.camera.pos;
-  vec3 rayD = normalize(
-      vec3((-1.0 + 2.0 * uv) * vec2(ubo.aspectRatio, 1.0), -sqrt(15)));
+  vec3 rayD = rayGen();
 
   // Basic color path
   int id = 0;
