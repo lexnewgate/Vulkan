@@ -36,7 +36,7 @@ void main ()
 	outType = inType;
 	outRotation = inRotation;
 	  
-	gl_Position = ubo.projection * ubo.modelview * vec4(inPos.xyz, 1.0);	
+	gl_Position = ubo.projection * ubo.modelview * vec4(inPos.xyz, 1.0);
 	
 	// Base size of the point sprites
 	float spriteSize = inSize;//8.0 * inSize;
@@ -44,5 +44,5 @@ void main ()
 	// Scale particle size depending on camera projection
 	vec4 eyePos = ubo.modelview * vec4(inPos.xyz, 1.0);
 	vec4 projectedCorner = ubo.projection * vec4(0.5 * spriteSize, 0.5 * spriteSize, eyePos.z, eyePos.w);
-	gl_PointSize = 64;//ubo.viewportDim.x * projectedCorner.x / projectedCorner.w;	
+	gl_PointSize =64;//ubo.viewportDim.x * projectedCorner.x / projectedCorner.w;	
 }

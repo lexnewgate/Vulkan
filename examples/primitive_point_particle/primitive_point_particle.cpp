@@ -79,7 +79,7 @@ public:
 		vks::Model environment;
 	} models;
 
-	glm::vec3 emitterPos = glm::vec3(0.0f, -FLAME_RADIUS + 2.0f, 0.0f);
+	glm::vec3 emitterPos = glm::vec3(0.0f, 0.1f, 0.0f);
 	glm::vec3 minVel = glm::vec3(-3.0f, 0.5f, -3.0f);
 	glm::vec3 maxVel = glm::vec3(3.0f, 7.0f, 3.0f);
 
@@ -246,9 +246,10 @@ public:
 		float phi = rnd(float(M_PI)) - float(M_PI) / 2.0f;
 		float r = rnd(FLAME_RADIUS);
 
-		particle->pos.x = 0.0;//= r * cos(theta) * cos(phi);
+		particle->pos.x = -0.5;//= r * cos(theta) * cos(phi);
 		particle->pos.y = 0.0;//= r * sin(phi);
-		particle->pos.z = -0.10;//r * sin(theta) * cos(phi);
+		particle->pos.z = -5.10;//r * sin(theta) * cos(phi);
+		//particle->pos += glm::vec4(emitterPos, 0.0f);
 
 	}
 
