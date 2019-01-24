@@ -17,12 +17,13 @@ void main ()
 {
 	vec4 color;
 	float alpha = (inAlpha <= 1.0) ? inAlpha : 2.0 - inAlpha;
+  alpha = 1.0;
 	
 	// Rotate texture coordinates
 	// Rotate UV	
 	float rotCenter = 0.5;
-	float rotCos = cos(inRotation);
-	float rotSin = sin(inRotation);
+	float rotCos = 1.0;//cos(inRotation);
+	float rotSin = 0.0;//sin(inRotation);
 	vec2 rotUV = vec2(
 		rotCos * (gl_PointCoord.x - rotCenter) + rotSin * (gl_PointCoord.y - rotCenter) + rotCenter,
 		rotCos * (gl_PointCoord.y - rotCenter) - rotSin * (gl_PointCoord.x - rotCenter) + rotCenter);

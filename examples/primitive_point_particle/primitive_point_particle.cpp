@@ -1,10 +1,13 @@
 /*
-* Vulkan Example - CPU based fire particle system 
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Copyright (C) 2016-2017 by Sascha Willems - www.saschawillems.de
+ * Copyright (C) 2019 by Xu Xing - xu.xing@outlook.com
+ * This code is licensed under the MIT license (MIT)
+ * (http://opensource.org/licenses/MIT) Code is based on Sascha Willems's Vulkan
+ * example: https://github.com/SaschaWillems/Vulkan/tree/master/examples/particlefire
+ *
+ * 3D1 Example - Primitive Point
+ *
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,7 +30,7 @@
 
 #define VERTEX_BUFFER_BIND_ID 0
 #define ENABLE_VALIDATION false
-#define PARTICLE_COUNT 10
+#define PARTICLE_COUNT 1
 #define PARTICLE_SIZE 1.0f
 
 #define FLAME_RADIUS 1.0f
@@ -128,12 +131,12 @@ public:
 	VulkanExample() : VulkanExampleBase(ENABLE_VALIDATION)
 	{
 
-		zoom = -75.0f;
-		rotation = { -15.0f, 45.0f, 0.0f };
+		zoom = -0.0f;
+		rotation = { 0.0f, 0.0f, 0.0f };//{ -15.0f, 45.0f, 0.0f };
 		title = "CPU based particle system";
 		settings.overlay = true;
 		zoomSpeed *= 1.5f;
-		timerSpeed *= 8.0f;
+		timerSpeed *= 1.0f;
 		rndEngine.seed(benchmark.active ? 0 : (unsigned)time(nullptr));
 	}
 
@@ -231,23 +234,22 @@ public:
 	void initParticle(Particle *particle, glm::vec3 emitterPos)
 	{
 		particle->vel = glm::vec4(0.0f, minVel.y + rnd(maxVel.y - minVel.y), 0.0f, 0.0f);
-		particle->alpha = rnd(0.75f);
-		particle->size = 1.0f + rnd(0.5f);
+		particle->alpha = 0.5;//rnd(0.75f);
+		particle->size = 1.0;//1.0f + rnd(0.5f);
 		particle->color = glm::vec4(1.0f);
-		particle->type = PARTICLE_TYPE_FLAME;
-		particle->rotation = rnd(2.0f * float(M_PI));
-		particle->rotationSpeed = rnd(2.0f) - rnd(2.0f);
+		particle->type = PARTICLE_TYPE_SMOKE;
+		particle->rotation = 0.0;//rnd(2.0f * float(M_PI));
+		particle->rotationSpeed = 0.0;//rnd(2.0f) - rnd(2.0f);
 
 		// Get random sphere point
 		float theta = rnd(2.0f * float(M_PI));
 		float phi = rnd(float(M_PI)) - float(M_PI) / 2.0f;
 		float r = rnd(FLAME_RADIUS);
 
-		particle->pos.x = r * cos(theta) * cos(phi);
-		particle->pos.y = r * sin(phi);
-		particle->pos.z = r * sin(theta) * cos(phi);
+		particle->pos.x = 0.0;//= r * cos(theta) * cos(phi);
+		particle->pos.y = 0.0;//= r * sin(phi);
+		particle->pos.z = -0.10;//r * sin(theta) * cos(phi);
 
-		particle->pos += glm::vec4(emitterPos, 0.0f);
 	}
 
 	void transitionParticle(Particle *particle)
@@ -256,6 +258,7 @@ public:
 		{
 		case PARTICLE_TYPE_FLAME:
 			// Flame particles have a chance of turning into smoke
+			printf("%f,%f,%f\n",particle->pos.x, particle->pos.y,particle->pos.z);
 			if (rnd(1.0f) < 0.05f)
 			{
 				particle->alpha = 0.0f;
@@ -274,7 +277,7 @@ public:
 			break;
 		case PARTICLE_TYPE_SMOKE:
 			// Respawn at end of life
-			initParticle(particle, emitterPos);
+			//initParticle(particle, emitterPos);
 			break;
 		}
 	}
@@ -285,7 +288,7 @@ public:
 		for (auto& particle : particleBuffer)
 		{
 			initParticle(&particle, emitterPos);
-			particle.alpha = 1.0f - (abs(particle.pos.y) / (FLAME_RADIUS * 2.0f));
+			particle.alpha = 1.0f;//1.0f - (abs(particle.pos.y) / (FLAME_RADIUS * 2.0f));
 		}
 
 		particles.size = particleBuffer.size() * sizeof(Particle);
@@ -315,17 +318,17 @@ public:
 				particle.size -= particleTimer * 0.5f;
 				break;
 			case PARTICLE_TYPE_SMOKE:
-				particle.pos -= particle.vel * frameTimer * 1.0f;
-				particle.alpha += particleTimer * 1.25f;
-				particle.size += particleTimer * 0.125f;
-				particle.color -= particleTimer * 0.05f;
+				particle.pos;// -= particle.vel * frameTimer * 1.0f;
+				//particle.alpha += particleTimer * 1.25f;
+				//particle.size += particleTimer * 0.125f;
+				//particle.color -= particleTimer * 0.05f;
 				break;
 			}
-			particle.rotation += particleTimer * particle.rotationSpeed;
+			particle.rotation = 0.0;// += particleTimer * particle.rotationSpeed;
 			// Transition particle state
 			if (particle.alpha > 2.0f)
 			{
-				transitionParticle(&particle);
+				//transitionParticle(&particle);
 			}
 		}
 		size_t size = particleBuffer.size() * sizeof(Particle);
@@ -687,9 +690,9 @@ public:
 	void updateUniformBufferLight()
 	{
 		// Environment
-		uboEnv.lightPos.x = sin(timer * 2.0f * float(M_PI)) * 1.5f;
+		uboEnv.lightPos.x = 0.0f;//sin(timer * 2.0f * float(M_PI)) * 1.5f;
 		uboEnv.lightPos.y = 0.0f;
-		uboEnv.lightPos.z = cos(timer * 2.0f * float(M_PI)) * 1.5f;
+		uboEnv.lightPos.z = 0.0f;//cos(timer * 2.0f * float(M_PI)) * 1.5f;
 		memcpy(uniformBuffers.environment.mapped, &uboEnv, sizeof(uboEnv));
 	}
 
@@ -701,13 +704,14 @@ public:
 		viewMatrix = glm::translate(viewMatrix, glm::vec3(0.0f, 0.0f, zoom));
 
 		uboVS.model = glm::mat4(1.0f);
-		uboVS.model = viewMatrix * glm::translate(uboVS.model, glm::vec3(0.0f, 15.0f, 0.0f));
-		uboVS.model = glm::rotate(uboVS.model, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-		uboVS.model = glm::rotate(uboVS.model, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-		uboVS.model = glm::rotate(uboVS.model, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+		uboVS.model = viewMatrix * glm::translate(uboVS.model, glm::vec3(0.0f, 0.0f, 0.0f));
+		//uboVS.model = glm::rotate(uboVS.model, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+		//uboVS.model = glm::rotate(uboVS.model, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+		//uboVS.model = glm::rotate(uboVS.model, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
 		uboVS.viewportDim = glm::vec2((float)viewportWidth, (float)viewportHeight);
 		memcpy(uniformBuffers.fire.mapped, &uboVS, sizeof(uboVS));
+
 
 		// Environment
 		uboEnv.projection = uboVS.projection;
@@ -751,8 +755,8 @@ public:
 		draw();
 		if (!paused)
 		{
-			updateUniformBufferLight();
-			updateParticles();
+			//updateUniformBufferLight();
+			//updateParticles();
 		}
 	}
 
