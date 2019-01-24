@@ -72,12 +72,13 @@ set(EXAMPLES
 	#occlusionquery
 	#offscreen
 	#parallaxmapping
-	#particlefire
+	particlefire
 	#pbrbasic
 	#pbribl
 	#pbrtexture
 	#pipelines
 	#pipelinestatistics
+    primitive_point_particle
 	projection_perspective_lighting
 	projection_perspective_lookat
 	projection_perspective_quad
