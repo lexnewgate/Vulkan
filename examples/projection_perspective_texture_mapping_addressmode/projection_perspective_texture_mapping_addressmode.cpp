@@ -624,7 +624,7 @@ class VulkanExample : public VulkanExampleBase {
     float topAtAnyZ = top * zEye / (-near) * scale;
 
     // Setup vertices for a single uv-mapped quad made from two triangles
-    const char* clipMode = "zoom2_translate";
+    const char* clipMode = "full";
     std::vector<Vertex> vertices;
     if (strncmp(clipMode, "full", sizeof(clipMode)) == 0) {
       vertices = {
@@ -974,11 +974,11 @@ class VulkanExample : public VulkanExampleBase {
 
     shaderStages[0] = loadShader(
         getAssetPath() +
-            "shaders/projection_perspective_texture_mapping/texture.vert.spv",
+            "shaders/projection_perspective_texture_mapping_addressmode/texture.vert.spv",
         VK_SHADER_STAGE_VERTEX_BIT);
     shaderStages[1] = loadShader(
         getAssetPath() +
-            "shaders/projection_perspective_texture_mapping/texture.frag.spv",
+            "shaders/projection_perspective_texture_mapping_addressmode/texture.frag.spv",
         VK_SHADER_STAGE_FRAGMENT_BIT);
 
     VkGraphicsPipelineCreateInfo pipelineCreateInfo =
