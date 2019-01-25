@@ -442,16 +442,17 @@ class VulkanExample : public VulkanExampleBase {
 
     // Setup vertices.
     std::vector<Vertex> vertexBuffer = {
-        {{leftAtAnyZ, bottomAtAnyZ, zEye}, {1.0f, 0.0f, 0.0f}},
-        {{rightAtAnyZ, bottomAtAnyZ, zEye}, {0.0f, 1.0f, 0.0f}},
-        {{rightAtAnyZ, topAtAnyZ, zEye}, {0.0f, 0.0f, 1.0f}},
-        {{leftAtAnyZ, topAtAnyZ, zEye}, {0.0f, 1.0f, 0.0f}}};
+        {{leftAtAnyZ, bottomAtAnyZ, zEye}, {0.5f, 0.0f, 0.0f}},
+        {{rightAtAnyZ, bottomAtAnyZ, zEye}, {0.0f, 0.0f, 0.0f}},
+        {{rightAtAnyZ, topAtAnyZ, zEye}, {0.0f, 0.0f, 0.5f}},
+        {{leftAtAnyZ, topAtAnyZ, zEye}, {1.0f, 1.0f, 1.0f}}};
 
     uint32_t vertexBufferSize =
         static_cast<uint32_t>(vertexBuffer.size()) * sizeof(Vertex);
 
     // Setup indices
     std::vector<uint32_t> indexBuffer = {0, 1, 2, 0, 2, 3};
+    //std::vector<uint32_t> indexBuffer = {2, 1, 0, 3, 2, 0};
     indices.count = static_cast<uint32_t>(indexBuffer.size());
     uint32_t indexBufferSize = indices.count * sizeof(uint32_t);
 
@@ -1073,8 +1074,8 @@ class VulkanExample : public VulkanExampleBase {
     rasterizationState.sType =
         VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
     rasterizationState.polygonMode = VK_POLYGON_MODE_FILL;
-    rasterizationState.cullMode = VK_CULL_MODE_NONE;
-    rasterizationState.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    rasterizationState.cullMode = VK_CULL_MODE_BACK_BIT;
+    rasterizationState.frontFace = VK_FRONT_FACE_CLOCKWISE;//VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterizationState.depthClampEnable = VK_FALSE;
     rasterizationState.rasterizerDiscardEnable = VK_FALSE;
     rasterizationState.depthBiasEnable = VK_FALSE;
