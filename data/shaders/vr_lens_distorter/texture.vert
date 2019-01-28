@@ -21,38 +21,41 @@ layout (location = 2) out vec2 outUV;
 layout (location = 3) out vec3 outViewVec;
 layout (location = 4) out vec3 outLightVec;
 
-vec4 Distort(vec4 p)
+void DistortImageDiff(inout vec4 p)
 {
-  vec2 v = p.xy / p.w;
+  vec2 pNDC = p.xy / p.w;
   // Convert to polar coords:
-  float radius = length(v);
-  if (radius > 0)
-  {
-    float theta = atan(v.y,v.x);
-    
-    // Distort:
-    #if 0
-    //1), https://www.geeks3d.com/20140213/glsl-shader-library-fish-eye-and-dome-and-barrel-distortion-post-processing-filters/2/
-    radius = pow(radius, 0.8);
-    #endif
-    //2),  http://jsfiddle.net/s175ozts/4/, https://stackoverflow.com/questions/28130618/what-ist-the-correct-oculus-rift-barrel-distortion-radius-function
-    #if 1
-    float radiusF = radius/1.68;
-    radius = radius/(0.24*pow(radiusF,4)+0.22*pow(radiusF,2)+1);
-    #endif
-    #if 0 
-    /*Not work, investigate why*/
-    float radiusF = radius/0.98;
-    radius = radius*(0.24*pow(radiusF,4)+0.22*pow(radiusF,2)+1);
-    #endif
+  float radius = length(pNDC);
+  if (radius == 0)
+    return;
 
-    // Convert back to Cartesian:
-    v.x = radius * cos(theta);
-    v.y = radius * sin(theta);
-    p.xy = v.xy * p.w;
-  }
-  return p;
+  float theta = atan(pNDC.y,pNDC.x);
+    
+  float radiusF = radius/1.68;
+  radius = radius-(0.24*pow(radiusF,4)+0.22*pow(radiusF,2));
+  // Convert back to Cartesian:
+  pNDC.x = radius * cos(theta);
+  pNDC.y = radius * sin(theta);
+  p.xy = pNDC.xy * p.w;
 }
+
+// http://marcodiiga.github.io/radial-lens-undistortion-filtering
+// Works in both vertex and fragment.
+void DistortImageRatio(inout vec4 p)
+{
+  p.xy = p.xy / p.w;
+  // Convert to polar coords:
+  // Calculate r*r.
+  float rr = p.x*p.x + p.y*p.y;
+  float alphax = 0.15;
+  float alphay = 0.15;
+
+  // Calculate the deflated or inflated new coordinate (reverse transform)
+  p.x = p.x / (1.0 + alphax * rr);
+  p.y = p.y / (1.0 + alphay * rr);
+  p.xy = p.xy*p.w;
+}
+
 
 out gl_PerVertex
 {
@@ -65,7 +68,7 @@ void main()
   outColor = inColor;
   outUV = inUV;
   gl_Position = ubo.projection * ubo.model * vec4(inPos.xyz, 1.0);
-  gl_Position = Distort(gl_Position);
+  //DistortImageRatio(gl_Position);
   
   vec4 pos = ubo.model * vec4(inPos, 1.0);
   outNormal = mat3(ubo.model) * inNormal;

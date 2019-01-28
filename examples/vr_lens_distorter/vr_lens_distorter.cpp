@@ -111,7 +111,7 @@ public:
 		rotationSpeed = 0.5f;
 		rotation = { 0.0f, 00.0f, 0.0f };
 		cameraPos = { 0.0f, 0.0f, 0.0f };
-		title = "Model rendering";
+		title = "VR lens distorter";
 		settings.overlay = true;
 	}
 
@@ -184,7 +184,7 @@ public:
 			// Render mesh vertex buffer using it's indices
 			vkCmdDrawIndexed(drawCmdBuffers[i], model.indices.count, 1, 0, 0, 0);
 
-			drawUI(drawCmdBuffers[i]);
+			//drawUI(drawCmdBuffers[i]);
 
 			vkCmdEndRenderPass(drawCmdBuffers[i]);
 
@@ -236,7 +236,9 @@ public:
 				Vertex vertex;
 
 				// Use glm make_* functions to convert ASSIMP vectors to glm vectors
-				vertex.pos = glm::make_vec3(&scene->mMeshes[m]->mVertices[v].x) * scale;
+				vertex.pos = glm::make_vec3(&scene->mMeshes[m]->mVertices[v].x);
+				vertex.pos.x = vertex.pos.x*scale;
+				vertex.pos.y = vertex.pos.y*scale;
 				printGlmVec3(vertex.pos);
 				vertex.normal = glm::make_vec3(&scene->mMeshes[m]->mNormals[v].x);
 				// Texture coordinates and colors may have multiple channels, we only use the first [0] one

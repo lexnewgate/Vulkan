@@ -14,98 +14,66 @@ layout (location = 4) in vec3 inLightVec;
 layout (location = 0) out vec4 outFragColor;
 
 
-#if 0
-//https://www.geeks3d.com/20140213/glsl-shader-library-fish-eye-and-dome-and-barrel-distortion-post-processing-filters/2/
-vec2 Distort(vec2 p)
-{
-  float theta  = atan(p.y, p.x);
+// Based on image difference.
+vec2 DistortImageDiff(vec2 uv) {
+  // Re-centered the u,v coordinates at (0, 0), in the range [-1.0, 1.0].
+  float x = 2.0 * uv.x - 1.0;
+  float y = 2.0 * uv.y - 1.0;
+  // Convert to polar coords.
+  float radius = length(vec2(x,y));
+  if (radius == 0)
+    return uv;
+  float theta = atan(y,x);
+  radius = radius+(0.24*pow(radius,4)+0.22*pow(radius,2));
+  // Convert back to Cartesian:
+  x = radius * cos(theta);
+  y = radius * sin(theta);
 
-  float x = p.x;//(2.0 * p.x - 1.0) / 1.0;
-  float y = p.y;//(2.0 * p.y - 1.0) / 1.0;
-  float radius = length(vec2(x,y)); //sqrt( x*x + y*y);
-  radius = pow(radius,3);
-  vec2 uv;
-  uv.x = radius * cos(theta);
-  uv.y = radius * sin(theta);
-  return 0.5 * (uv + 1.0);
+  // Re-centered at (0.5, 0.5), in the range [0.0, 1.0].
+  // De-normalize to the original range
+  float u = (x + 1.0) / 2.0;
+  float v = (y + 1.0) / 2.0;
+  return vec2(u, v);
 }
 
-void main() 
-{
-  vec2 uv;
-  vec2 xy = 2.0 * inUV.xy - 1.0;  
-  float d = length(xy);
-  if (d < 1.0)
-  {
-    uv = Distort(xy);
-  }
-  else
-  {
-    uv = inUV.xy;
-  }
-  //uv = Distort(inUV);
-
-  vec4 color;
-  if(uv.x >= 0.0 && uv.x  <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0)
-  color = texture(samplerColorMap, uv) * vec4(inColor, 1.0);
-  else 
-  color = vec4(0.0, 0.0, 0.0, 1.0);
-  //color = texture(samplerColorMap, inUV) * vec4(inColor, 1.0);
-  vec3 N = normalize(inNormal);
-  vec3 L = normalize(inLightVec);
-  vec3 V = normalize(inViewVec);
-  vec3 R = reflect(-L, N);
-  vec3 diffuse = max(dot(N, L), 0.0) * inColor;
-  vec3 specular = pow(max(dot(R, V), 0.0), 16.0) * vec3(0.75);
-  outFragColor = vec4(color.rgb, 1.0);//vec4(diffuse * color.rgb*2.0 + specular*3.0+1.0, 1.0);    
-}
-#endif
-#if 1
-//http://marcodiiga.github.io/radial-lens-undistortion-filtering
-vec2 Distort2(vec2 pass_TextureCoord) {
+// http://marcodiiga.github.io/radial-lens-undistortion-filtering
+// Works in both vertex and fragment.
+// Based on image ratio.
+vec2 DistortImageRatio(vec2 uv) {
   // Normalize the u,v coordinates in the range [-1;+1]
-  float x = (2.0 * pass_TextureCoord.x - 1.0) / 1.0;
-  float y = (2.0 * pass_TextureCoord.y - 1.0) / 1.0;
-  float alphax= 0.08;
-  float alphay= 0.08;
+  float x = 2.0 * uv.x - 1.0;
+  float y = 2.0 * uv.y - 1.0;
+  float alphax= 0.25;
+  float alphay= 0.25;
 
-  // Calculate l2 norm
-  float r = x*x + y*y;
+  // Calculate r*r norm
+  float rr = x*x + y*y;
 
   // Calculate the deflated or inflated new coordinate (reverse transform)
-  float x3 = x / (1.0 - alphax * r);
-  float y3 = y / (1.0 - alphay * r); 
-  float x2 = x / (1.0 - alphax * (x3 * x3 + y3 * y3));
-  float y2 = y / (1.0 - alphay * (x3 * x3 + y3 * y3));  
-
-  // Forward transform
-  // float x2 = x * (1.0 - alphax * r);
-  // float y2 = y * (1.0 - alphay * r);
+  float xAntiDistorted = x / (1.0 - alphax * rr);
+  float yAntiDistorted = y / (1.0 - alphay * rr);
 
   // De-normalize to the original range
-  float i2 = (x2 + 1.0) * 1.0 / 2.0;
-  float j2 = (y2 + 1.0) * 1.0 / 2.0;
-  return vec2(i2,j2);
+  float u = (xAntiDistorted + 1.0) / 2.0;
+  float v = (yAntiDistorted + 1.0) / 2.0;
+  return vec2(u,v);
 }
 
 void main() 
 {
-  vec2 uv = Distort2(inUV);
+  vec2 uv = DistortImageRatio(inUV);
   vec4 color;
   if(uv.x >= 0.0 && uv.x  <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0)
     color = texture(samplerColorMap, uv) * vec4(inColor, 1.0);
   else 
     color = vec4(0.0, 0.0, 0.0, 1.0);
-  // Bypass distortion.
-  //color = texture(samplerColorMap, inUV) * vec4(inColor, 1.0);
   vec3 N = normalize(inNormal);
   vec3 L = normalize(inLightVec);
   vec3 V = normalize(inViewVec);
   vec3 R = reflect(-L, N);
   vec3 diffuse = max(dot(N, L), 0.0) * inColor;
   vec3 specular = pow(max(dot(R, V), 0.0), 16.0) * vec3(0.75);
-  outFragColor = vec4(color.rgb, 1.0);//vec4(diffuse * color.rgb*2.0 + specular*3.0+1.0, 1.0);    
+  //outFragColor =  vec4(diffuse * color.rgb*2.0 + specular*3.0+1.0, 1.0);
+  outFragColor = vec4(color.rgb, 1.0);
 }
-#endif
-
 
