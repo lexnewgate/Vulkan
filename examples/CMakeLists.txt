@@ -90,6 +90,8 @@ set(EXAMPLES
 	projection_perspective_texture_mapping_addressmode
     projection_perspective_texture_mapping_notfullscreen_fulltexture
     projection_perspective_texture_mapping_notfullscreen_parttexture
+    projection_perspective_mesh_quad
+    projection_perspective_mesh_sphere
 	#pushconstants
 	#pushdescriptors
 	#radialblur
