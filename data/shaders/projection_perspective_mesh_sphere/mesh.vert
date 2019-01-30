@@ -2,7 +2,7 @@
 
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_ARB_shading_language_420pack : enable
-
+#define PI 3.14159265
 layout(location = 0) in vec3 inPos;
 layout(location = 1) in vec3 inNormal;
 layout(location = 2) in vec2 inUV;
@@ -29,8 +29,8 @@ out gl_PerVertex {
 
 vec2 genUVForSphere() {
   vec3 d = normalize(ubo.sphereCenter - inPos);
-  float u = 0.5 + atan(d.z, d.x) / (3.14 * 2);
-  float v = 0.5 - asin(d.y) / 3.14;
+  float u = 0.5 + atan(d.z, d.x) /(2*PI);
+  float v = 0.5 - asin(d.y) /PI;
   return vec2(u, v);
 }
 
