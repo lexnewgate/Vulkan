@@ -31,14 +31,9 @@ void main()
   outUV = inUV;
   outLodBias = ubo.lodBias;
 
-  vec3 worldPos = vec3(ubo.model * vec4(inPos, 1.0));
-
-  gl_Position = ubo.projection * ubo.model * vec4(inPos.xyz, 1.0);
-  // https://matthewwellings.com/blog/the-new-vulkan-coordinate-system/
-  //gl_Position.y = -gl_Position.y;
-  //gl_Position.xy = gl_Position.xy/3.0;
-
   vec4 pos = ubo.model * vec4(inPos, 1.0);
+  gl_Position = ubo.projection * pos;
+
   outNormal = mat3(inverse(transpose(ubo.model))) * inNormal;
   vec3 lightPos = vec3(0.0);
   vec3 lPos = mat3(ubo.model) * lightPos.xyz;
