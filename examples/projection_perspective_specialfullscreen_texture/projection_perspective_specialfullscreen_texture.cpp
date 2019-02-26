@@ -818,13 +818,6 @@ class VulkanExample : public VulkanExampleBase {
                            writeDescriptorSets.data(), 0, NULL);
   }
 
-  vkUpdateDescriptorSets(device,
-                         static_cast<uint32_t>(writeDescriptorSets.size()),
-                         writeDescriptorSets.data(),
-                         0,
-                         NULL);
-}
-
   void preparePipelines() {
   VkPipelineInputAssemblyStateCreateInfo inputAssemblyState =
       vks::initializers::pipelineInputAssemblyStateCreateInfo(
