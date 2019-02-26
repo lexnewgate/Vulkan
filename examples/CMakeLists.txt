@@ -46,7 +46,7 @@ set(EXAMPLES
 	#computeheadless
 	#computenbody
 	#computeparticles
-	#computeshader
+	computeshader
 	#conditionalrender
 	#conservativeraster
 	#debugmarker
