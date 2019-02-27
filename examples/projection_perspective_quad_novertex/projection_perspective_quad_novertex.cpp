@@ -39,6 +39,8 @@ static float aspect;
 static float width;
 static float height;
 
+#undef far
+#undef near
 static float near = 0.1f;
 static float far= 256.0f;
 static float zEye = 5.0f;
