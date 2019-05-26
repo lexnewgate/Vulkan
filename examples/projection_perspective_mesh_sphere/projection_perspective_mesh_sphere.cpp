@@ -259,10 +259,6 @@ class VulkanExample : public VulkanExampleBase {
                            ? glm::make_vec3(&scene->mMeshes[m]->mColors[0][v].r)
                            : glm::vec3(1.0f);
 
-        // Vulkan uses a right-handed NDC (contrary to OpenGL), so simply flip
-        // Y-Axis
-        // vertex.pos.y *= -1.0f;
-        // printGlmVec3(vertex.pos);
         if (vertex.pos.x > xBiggest)
           xBiggest = vertex.pos.x;
         if (vertex.pos.x < xSmallest)
@@ -284,12 +280,7 @@ class VulkanExample : public VulkanExampleBase {
         glm::vec3((xBiggest + xSmallest) / 2, (yBiggest + ySmallest) / 2,
                   (zBiggest + zSmallest) / 2);
     uboVS.sphereRadius = ((xBiggest - xSmallest) + (yBiggest - ySmallest) +
-                          (zBiggest - zSmallest)) /
-                         6.0;
-    printf("%f,%f; %f, %f; %f,%f\n", xSmallest, xBiggest, ySmallest, yBiggest,
-           zSmallest, zBiggest);
-    printf("Center: %f,%f, %f; Radius=%f\n", uboVS.sphereCenter.x,
-           uboVS.sphereCenter.y, uboVS.sphereCenter.z, uboVS.sphereRadius);
+                          (zBiggest - zSmallest)) / 6.0;
 
     size_t vertexBufferSize = vertexBuffer.size() * sizeof(Vertex);
 
@@ -623,7 +614,6 @@ class VulkanExample : public VulkanExampleBase {
                               glm::vec3(0.0f, 1.0f, 0.0f));
     uboVS.model = glm::rotate(uboVS.model, glm::radians(rotation.z),
                               glm::vec3(0.0f, 0.0f, 1.0f));
-    // printf("Rotation: %f, %f, %f\n",rotation.x, rotation.y,rotation.z);
 
     memcpy(uniformBuffers.scene.mapped, &uboVS, sizeof(uboVS));
   }
