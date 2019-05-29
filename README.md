@@ -56,7 +56,7 @@ $cmake -G "Visual Studio 15 2017 Win64"
 
 [VR畸变校正](examples/vr_lens_distorter/)
 
-#### 第10章 一种特殊的全窗口显示的方法
+#### 第10章  一种特殊的全窗口显示的方法
 
 [三个顶点实现全窗口显示](examples/projection_perspective_specialfullscreen_texture/)
 
