@@ -55,9 +55,8 @@ float far;
 float DEG2RAD = PI / 180.0;
 
 static void initGolbalData() {
-	near = 0.01;
-	//float far;
-	far = 256.0;
+  near = 0.01;
+  far = 256.0;
 }
 
 

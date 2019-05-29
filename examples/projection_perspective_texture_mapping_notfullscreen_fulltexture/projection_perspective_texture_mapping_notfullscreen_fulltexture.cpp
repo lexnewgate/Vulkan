@@ -44,16 +44,15 @@ static float aspect;
 static float width;
 static float height;
 float near;
-// near = 0.01f;
+// static float near = 0.01f;
 float far;
-// far = 256.0f;
+// static float far = 256.0f;
 
 #define PI 3.14159265
 float DEG2RAD = PI / 180.0;
 
 static void initGolbalData() {
   near = 0.01;
-  // float far;
   far = 256.0;
 }
 

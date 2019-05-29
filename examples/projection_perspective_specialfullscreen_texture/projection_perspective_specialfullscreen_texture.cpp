@@ -53,7 +53,6 @@ float DEG2RAD = PI / 180.0;
 
 static void initGolbalData() {
   near = 0.01;
-  // float far;
   far = 256.0;
 }
 
@@ -596,17 +595,6 @@ class VulkanExample : public VulkanExampleBase {
   }
 
   void generateQuad() {
-    // TOCLEANUP:
-    /*
-    // Setup vertices for a single uv-mapped quad made from two triangles
-    std::vector<Vertex> vertices =
-    {
-            { {  1.0f,  1.0f, 0.0f }, { 1.0f, 1.0f },{ 0.0f, 0.0f, 1.0f } },
-            { { -1.0f,  1.0f, 0.0f }, { 0.0f, 1.0f },{ 0.0f, 0.0f, 1.0f } },
-            { { -1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 1.0f } },
-            { {  1.0f, -1.0f, 0.0f }, { 1.0f, 0.0f },{ 0.0f, 0.0f, 1.0f } }
-    };
-    */
     aspect = (float)viewportWidth / viewportHeight;
     float tangent = tan(fovY / 2 * DEG2RAD);
     height = near * tangent;  // half height of near plane
