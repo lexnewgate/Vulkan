@@ -50,8 +50,6 @@ $cmake -G "Visual Studio 15 2017 Win64"
 
 [平面纹理映射](examples/projection_perspective_mesh_quad/)
 
-[球体纹理映射](examples/projection_perspective_mesh_sphere/)
-
 #### 第9章 	VR的枕型畸变和消除
 
 [VR畸变校正](examples/vr_lens_distorter/)
