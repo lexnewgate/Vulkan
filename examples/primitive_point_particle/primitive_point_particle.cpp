@@ -234,22 +234,21 @@ public:
 	void initParticle(Particle *particle, glm::vec3 emitterPos)
 	{
 		particle->vel = glm::vec4(0.0f, minVel.y + rnd(maxVel.y - minVel.y), 0.0f, 0.0f);
-		particle->alpha = 0.5;//rnd(0.75f);
-		particle->size = 1.0;//1.0f + rnd(0.5f);
+		particle->alpha = 0.5;
+		particle->size = 1.0;
 		particle->color = glm::vec4(1.0f);
 		particle->type = PARTICLE_TYPE_SMOKE;
-		particle->rotation = 0.0;//rnd(2.0f * float(M_PI));
-		particle->rotationSpeed = 0.0;//rnd(2.0f) - rnd(2.0f);
+		particle->rotation = 0.0;
+		particle->rotationSpeed = 0.0;
 
 		// Get random sphere point
 		float theta = rnd(2.0f * float(M_PI));
 		float phi = rnd(float(M_PI)) - float(M_PI) / 2.0f;
 		float r = rnd(FLAME_RADIUS);
 
-		particle->pos.x = -0.5;//= r * cos(theta) * cos(phi);
-		particle->pos.y = 0.0;//= r * sin(phi);
-		particle->pos.z = -5.10;//r * sin(theta) * cos(phi);
-		//particle->pos += glm::vec4(emitterPos, 0.0f);
+		particle->pos.x = -0.5;
+		particle->pos.y = 0.0;
+		particle->pos.z = -5.10;
 
 	}
 

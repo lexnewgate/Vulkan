@@ -17,32 +17,32 @@ layout (location = 3) out float outRotation;
 
 layout (binding = 0) uniform UBO 
 {
-	mat4 projection;
-	mat4 modelview;
-	vec2 viewportDim;
-	float pointSize;
+  mat4 projection;
+  mat4 modelview;
+  vec2 viewportDim;
+  float pointSize;
 } ubo;
 
 out gl_PerVertex
 {
-	vec4 gl_Position;
-	float gl_PointSize;
+  vec4 gl_Position;
+  float gl_PointSize;
 };
 
 void main () 
 {
-	outColor = inColor;
-	outAlpha = inAlpha;
-	outType = inType;
-	outRotation = inRotation;
+  outColor = inColor;
+  outAlpha = inAlpha;
+  outType = inType;
+  outRotation = inRotation;
 	  
-	gl_Position = ubo.projection * ubo.modelview * vec4(inPos.xyz, 1.0);
+  gl_Position = ubo.projection * ubo.modelview * vec4(inPos.xyz, 1.0);
 	
-	// Base size of the point sprites
-	float spriteSize = inSize;//8.0 * inSize;
+  // Base size of the point sprites
+  float spriteSize = inSize;//8.0 * inSize;
 
-	// Scale particle size depending on camera projection
-	vec4 eyePos = ubo.modelview * vec4(inPos.xyz, 1.0);
-	vec4 projectedCorner = ubo.projection * vec4(0.5 * spriteSize, 0.5 * spriteSize, eyePos.z, eyePos.w);
-	gl_PointSize =64;//ubo.viewportDim.x * projectedCorner.x / projectedCorner.w;	
+  // Scale particle size depending on camera projection
+  vec4 eyePos = ubo.modelview * vec4(inPos.xyz, 1.0);
+  vec4 projectedCorner = ubo.projection * vec4(0.5 * spriteSize, 0.5 * spriteSize, eyePos.z, eyePos.w);
+  gl_PointSize = 64;
 }
