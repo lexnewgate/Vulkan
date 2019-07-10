@@ -614,21 +614,13 @@ class VulkanExample : public VulkanExampleBase {
 
     // Setup vertices for a single uv-mapped quad made from two triangles
     std::vector<Vertex> vertices = {
-        {{leftAtAnyZ, bottomAtAnyZ, zEye},
-         {0.0f, 1.0f},
-         {1.0f, 0.0f, 1.0f}},
+        {{leftAtAnyZ, bottomAtAnyZ, zEye}, {0.0f, 1.0f}, {1.0f, 0.0f, 1.0f}},
 
-        {{rightAtAnyZ, bottomAtAnyZ, zEye},
-         {1.0f, 1.0f},
-         {1.0f, 1.0f, 1.0f}},
+        {{rightAtAnyZ, bottomAtAnyZ, zEye}, {1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}},
 
-        {{rightAtAnyZ, topAtAnyZ, zEye},
-         {1.0f, 0.0f},
-         {0.0f, 0.0f, 1.0f}},
+        {{rightAtAnyZ, topAtAnyZ, zEye}, {1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
 
-        {{leftAtAnyZ, topAtAnyZ, zEye},
-          {0.0f, 0.0f},
-          {0.0f, 0.0f, 1.0f}},
+        {{leftAtAnyZ, topAtAnyZ, zEye}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
     };
 
     // Setup indices

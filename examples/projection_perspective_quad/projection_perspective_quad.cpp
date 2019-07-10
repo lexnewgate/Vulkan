@@ -420,9 +420,9 @@ class VulkanExample : public VulkanExampleBase {
   void prepareVertices(bool useStagingBuffers) {
     // A note on memory management in Vulkan in general:
     //	This is a very complex topic and while it's fine for an example
-    //application to to small individual memory allocations that is not 	what
-    //should be done a real-world application, where you should allocate large
-    //chunkgs of memory at once isntead.
+    // application to to small individual memory allocations that is not
+    // what should be done a real-world application, where you should allocate
+    // large chunkgs of memory at once isntead.
 
     aspect = (float)viewportWidth / viewportHeight;
     float tangent = tan(fovY / 2 * DEG2RAD);
@@ -452,7 +452,7 @@ class VulkanExample : public VulkanExampleBase {
 
     // Setup indices
     std::vector<uint32_t> indexBuffer = {0, 1, 2, 0, 2, 3};
-    //std::vector<uint32_t> indexBuffer = {2, 1, 0, 3, 2, 0};
+    // std::vector<uint32_t> indexBuffer = {2, 1, 0, 3, 2, 0};
     indices.count = static_cast<uint32_t>(indexBuffer.size());
     uint32_t indexBufferSize = indices.count * sizeof(uint32_t);
 
@@ -1075,7 +1075,8 @@ class VulkanExample : public VulkanExampleBase {
         VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
     rasterizationState.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizationState.cullMode = VK_CULL_MODE_BACK_BIT;
-    rasterizationState.frontFace = VK_FRONT_FACE_CLOCKWISE;//VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    rasterizationState.frontFace =
+        VK_FRONT_FACE_CLOCKWISE;  // VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterizationState.depthClampEnable = VK_FALSE;
     rasterizationState.rasterizerDiscardEnable = VK_FALSE;
     rasterizationState.depthBiasEnable = VK_FALSE;

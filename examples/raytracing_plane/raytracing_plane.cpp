@@ -452,7 +452,6 @@ class VulkanExample : public VulkanExampleBase {
 
 #endif
 
-
 #if 1
     // Bottom plane.
     planes.push_back(
@@ -463,8 +462,8 @@ class VulkanExample : public VulkanExampleBase {
                               glm::vec3(0.8f), 32.0f));
 
     // Front plane.
-    planes.push_back(newPlane(glm::vec3(0.0f, 0.0f, 1.0f), roomDim,
-                              glm::vec3(0.3f), 32.0f));
+    planes.push_back(
+        newPlane(glm::vec3(0.0f, 0.0f, 1.0f), roomDim, glm::vec3(0.3f), 32.0f));
 
     // Back plane. Can not be seen by camera.
     planes.push_back(newPlane(glm::vec3(0.0f, 0.0f, -1.0f), roomDim,

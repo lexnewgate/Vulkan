@@ -29,8 +29,8 @@ out gl_PerVertex {
 
 vec2 genUVForSphere() {
   vec3 d = normalize(ubo.sphereCenter - inPos);
-  float u = 0.5 + atan(d.z, d.x) /(2*PI);
-  float v = 0.5 - asin(d.y) /PI;
+  float u = 0.5 + atan(d.z, d.x) / (2 * PI);
+  float v = 0.5 - asin(d.y) / PI;
   return vec2(u, v);
 }
 

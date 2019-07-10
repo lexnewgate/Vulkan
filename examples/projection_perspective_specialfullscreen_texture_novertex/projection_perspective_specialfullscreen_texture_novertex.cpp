@@ -112,7 +112,6 @@ class VulkanExample : public VulkanExampleBase {
 
     vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
     vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
-
   }
 
   // Enable physical device features required for this example
@@ -545,7 +544,7 @@ class VulkanExample : public VulkanExampleBase {
       vkCmdBindPipeline(drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
                         pipelines.solid);
 
-      //vkCmdDrawIndexed(drawCmdBuffers[i], indexCount, 1, 0, 0, 0);
+      // vkCmdDrawIndexed(drawCmdBuffers[i], indexCount, 1, 0, 0, 0);
       vkCmdDraw(drawCmdBuffers[i], 3, 1, 0, 0);
 
       // drawUI(drawCmdBuffers[i]);
@@ -706,7 +705,6 @@ class VulkanExample : public VulkanExampleBase {
     emptyInputState.vertexBindingDescriptionCount = 0;
     emptyInputState.pVertexBindingDescriptions = nullptr;
 
-
     pipelineCreateInfo.pVertexInputState = &emptyInputState;
     pipelineCreateInfo.pInputAssemblyState = &inputAssemblyState;
     pipelineCreateInfo.pRasterizationState = &rasterizationState;
@@ -722,7 +720,6 @@ class VulkanExample : public VulkanExampleBase {
                                               &pipelineCreateInfo, nullptr,
                                               &pipelines.solid));
   }
-
 
   void prepare() {
     VulkanExampleBase::prepare();
@@ -741,7 +738,7 @@ class VulkanExample : public VulkanExampleBase {
     draw();
   }
 
-  virtual void viewChanged() {  }
+  virtual void viewChanged() {}
 
   virtual void OnUpdateUIOverlay(vks::UIOverlay* overlay) {
     if (overlay->header("Settings")) {

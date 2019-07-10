@@ -470,11 +470,11 @@ class VulkanExample : public VulkanExampleBase {
       VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE = 2,
       VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER = 3,
       VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE = 4,
-    } VkSamplerAddressMode; 
+    } VkSamplerAddressMode;
     */
     VkSamplerCreateInfo sampler = vks::initializers::samplerCreateInfo();
-    sampler.magFilter = VK_FILTER_NEAREST;// VK_FILTER_LINEAR;
-    sampler.minFilter = VK_FILTER_NEAREST;//VK_FILTER_LINEAR;
+    sampler.magFilter = VK_FILTER_NEAREST;  // VK_FILTER_LINEAR;
+    sampler.minFilter = VK_FILTER_NEAREST;  // VK_FILTER_LINEAR;
     sampler.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
     sampler.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     sampler.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
@@ -973,11 +973,13 @@ class VulkanExample : public VulkanExampleBase {
 
     shaderStages[0] = loadShader(
         getAssetPath() +
-            "shaders/projection_perspective_texture_mapping_addressmode/texture.vert.spv",
+            "shaders/projection_perspective_texture_mapping_addressmode/"
+            "texture.vert.spv",
         VK_SHADER_STAGE_VERTEX_BIT);
     shaderStages[1] = loadShader(
         getAssetPath() +
-            "shaders/projection_perspective_texture_mapping_addressmode/texture.frag.spv",
+            "shaders/projection_perspective_texture_mapping_addressmode/"
+            "texture.frag.spv",
         VK_SHADER_STAGE_FRAGMENT_BIT);
 
     VkGraphicsPipelineCreateInfo pipelineCreateInfo =

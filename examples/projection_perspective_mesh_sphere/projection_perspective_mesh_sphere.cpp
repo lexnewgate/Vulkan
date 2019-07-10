@@ -280,7 +280,8 @@ class VulkanExample : public VulkanExampleBase {
         glm::vec3((xBiggest + xSmallest) / 2, (yBiggest + ySmallest) / 2,
                   (zBiggest + zSmallest) / 2);
     uboVS.sphereRadius = ((xBiggest - xSmallest) + (yBiggest - ySmallest) +
-                          (zBiggest - zSmallest)) / 6.0;
+                          (zBiggest - zSmallest)) /
+                         6.0;
 
     size_t vertexBufferSize = vertexBuffer.size() * sizeof(Vertex);
 
@@ -549,10 +550,14 @@ class VulkanExample : public VulkanExampleBase {
     // Load shaders
     std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages;
 
-    shaderStages[0] = loadShader(getAssetPath() + "shaders/projection_perspective_mesh_sphere/mesh.vert.spv",
-                                 VK_SHADER_STAGE_VERTEX_BIT);
-    shaderStages[1] = loadShader(getAssetPath() + "shaders/projection_perspective_mesh_sphere/mesh.frag.spv",
-                                 VK_SHADER_STAGE_FRAGMENT_BIT);
+    shaderStages[0] = loadShader(
+        getAssetPath() +
+            "shaders/projection_perspective_mesh_sphere/mesh.vert.spv",
+        VK_SHADER_STAGE_VERTEX_BIT);
+    shaderStages[1] = loadShader(
+        getAssetPath() +
+            "shaders/projection_perspective_mesh_sphere/mesh.frag.spv",
+        VK_SHADER_STAGE_FRAGMENT_BIT);
 
     VkGraphicsPipelineCreateInfo pipelineCreateInfo =
         vks::initializers::pipelineCreateInfo(pipelineLayout, renderPass, 0);

@@ -557,12 +557,12 @@ class VulkanExample : public VulkanExampleBase {
     // Display pipeline
     std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages;
 
-    shaderStages[0] =
-        loadShader(getAssetPath() + "shaders/raytracing_sphere/texture.vert.spv",
-                   VK_SHADER_STAGE_VERTEX_BIT);
-    shaderStages[1] =
-        loadShader(getAssetPath() + "shaders/raytracing_sphere/texture.frag.spv",
-                   VK_SHADER_STAGE_FRAGMENT_BIT);
+    shaderStages[0] = loadShader(
+        getAssetPath() + "shaders/raytracing_sphere/texture.vert.spv",
+        VK_SHADER_STAGE_VERTEX_BIT);
+    shaderStages[1] = loadShader(
+        getAssetPath() + "shaders/raytracing_sphere/texture.frag.spv",
+        VK_SHADER_STAGE_FRAGMENT_BIT);
 
     VkGraphicsPipelineCreateInfo pipelineCreateInfo =
         vks::initializers::pipelineCreateInfo(graphics.pipelineLayout,
@@ -679,9 +679,9 @@ class VulkanExample : public VulkanExampleBase {
     VkComputePipelineCreateInfo computePipelineCreateInfo =
         vks::initializers::computePipelineCreateInfo(compute.pipelineLayout, 0);
 
-    computePipelineCreateInfo.stage =
-        loadShader(getAssetPath() + "shaders/raytracing_sphere/raytracing.comp.spv",
-                   VK_SHADER_STAGE_COMPUTE_BIT);
+    computePipelineCreateInfo.stage = loadShader(
+        getAssetPath() + "shaders/raytracing_sphere/raytracing.comp.spv",
+        VK_SHADER_STAGE_COMPUTE_BIT);
     VK_CHECK_RESULT(vkCreateComputePipelines(device, pipelineCache, 1,
                                              &computePipelineCreateInfo,
                                              nullptr, &compute.pipeline));

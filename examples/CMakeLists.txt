@@ -40,44 +40,8 @@ function(buildExamples)
 endfunction(buildExamples)
 
 set(EXAMPLES
-	#bloom
-	#computecloth
-	#computecullandlod
-	#computeheadless
-	#computenbody
-	#computeparticles
-	computeshader
-	#conditionalrender
-	#conservativeraster
-	#debugmarker
 	deferred
-	#deferredmultisampling
-	#deferredshadows
-	#descriptorsets
-	#displacement
-	#distancefieldfonts
-	#dynamicuniformbuffer
-	#gears
-	#geometryshader
-	#hdr
 	imgui
-	#indirectdraw
-	#inlineuniformblocks
-	#inputattachments
-	#instancing
-	mesh
-	multisampling
-	#multithreading
-	#multiview
-	#occlusionquery
-	#offscreen
-	#parallaxmapping
-	particlefire
-	#pbrbasic
-	#pbribl
-	#pbrtexture
-	#pipelines
-	#pipelinestatistics
     primitive_point_particle
 	projection_perspective_lighting
 	projection_perspective_lookat
@@ -92,40 +56,13 @@ set(EXAMPLES
     projection_perspective_texture_mapping_notfullscreen_parttexture
     projection_perspective_mesh_quad
     projection_perspective_mesh_sphere
-	#pushconstants
-	#pushdescriptors
-	#radialblur
-	raytracing
     raytracing_plane
     raytracing_quad
     raytracing_shadow
     raytracing_skybox
     raytracing_sphere
     raytracing_triangle
-	#renderheadless
-	#scenerendering
-	#screenshot
 	shadowmapping
-	#shadowmappingomni
-	#shadowmappingcascade
-	skeletalanimation
-	#specializationconstants
-	#sphericalenvmapping
-	#ssao
-	#stencilbuffer
-	subpasses
-	#terraintessellation
-	#tessellation
-	textoverlay
-	texture
-	#texture3d
-	#texturearray
-	#texturecubemap
-	#texturemipmapgen
-	#texturesparseresidency
-	triangle
-	#viewportarray
-	#vulkanscene
 	vr_lens_distorter
 )
 

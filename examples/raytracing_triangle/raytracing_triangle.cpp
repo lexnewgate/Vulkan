@@ -102,7 +102,6 @@ class VulkanExample : public VulkanExampleBase {
     } ubo;
   } compute;
 
-
   // SSBO triangle declaration
   struct Triangle {
     // Shader uses std140 layout (so we only use vec4 instead of vec3)
@@ -118,7 +117,6 @@ class VulkanExample : public VulkanExampleBase {
     glm::vec3 diffuse;
     float specular;
   };
-
 
   // SSBO plane declaration
   struct Plane {
@@ -349,12 +347,12 @@ class VulkanExample : public VulkanExampleBase {
   uint32_t currentId = 0;
 
   Triangle newTriangle(glm::vec3 v0,
-                     glm::vec3 v1,
-                     glm::vec3 v2,
-	                 glm::vec3 normal,
-                     float distance,
-                     glm::vec3 diffuse,
-                     float specular) {
+                       glm::vec3 v1,
+                       glm::vec3 v2,
+                       glm::vec3 normal,
+                       float distance,
+                       glm::vec3 diffuse,
+                       float specular) {
     Triangle triangle;
     triangle.id = currentId++;
     triangle.distance = distance;
@@ -393,14 +391,14 @@ class VulkanExample : public VulkanExampleBase {
     // Triangles
     std::vector<Triangle> triangles;
     triangles.push_back(newTriangle(
-        glm::vec3(-1.0f, -1.0f, -4.0f),glm::vec3(1.0f, -1.0f, -4.0f), 
-        glm::vec3(0.0f, 1.0f, -4.0f),glm::vec3(0.0f, 0.0f, 1.0f),
-        4.0f, glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
+        glm::vec3(-1.0f, -1.0f, -4.0f), glm::vec3(1.0f, -1.0f, -4.0f),
+        glm::vec3(0.0f, 1.0f, -4.0f), glm::vec3(0.0f, 0.0f, 1.0f), 4.0f,
+        glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
 
-    triangles.push_back(newTriangle(
-		glm::vec3(1.0f, 1.0f, -4.0f), glm::vec3(0.0f, 1.0f, -4.0f), 
-		glm::vec3(1.0f, 0.0f, -4.0f), glm::vec3(0.0f, 0.0f, 1.0f),
-        4.0f, glm::vec3(1.0f, 0.0f, 0.0f), 32.0f));
+    triangles.push_back(
+        newTriangle(glm::vec3(1.0f, 1.0f, -4.0f), glm::vec3(0.0f, 1.0f, -4.0f),
+                    glm::vec3(1.0f, 0.0f, -4.0f), glm::vec3(0.0f, 0.0f, 1.0f),
+                    4.0f, glm::vec3(1.0f, 0.0f, 0.0f), 32.0f));
 
     storageBufferSize = triangles.size() * sizeof(Triangle);
 
@@ -577,12 +575,12 @@ class VulkanExample : public VulkanExampleBase {
     // Display pipeline
     std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages;
 
-    shaderStages[0] =
-        loadShader(getAssetPath() + "shaders/raytracing_triangle/texture.vert.spv",
-                   VK_SHADER_STAGE_VERTEX_BIT);
-    shaderStages[1] =
-        loadShader(getAssetPath() + "shaders/raytracing_triangle/texture.frag.spv",
-                   VK_SHADER_STAGE_FRAGMENT_BIT);
+    shaderStages[0] = loadShader(
+        getAssetPath() + "shaders/raytracing_triangle/texture.vert.spv",
+        VK_SHADER_STAGE_VERTEX_BIT);
+    shaderStages[1] = loadShader(
+        getAssetPath() + "shaders/raytracing_triangle/texture.frag.spv",
+        VK_SHADER_STAGE_FRAGMENT_BIT);
 
     VkGraphicsPipelineCreateInfo pipelineCreateInfo =
         vks::initializers::pipelineCreateInfo(graphics.pipelineLayout,

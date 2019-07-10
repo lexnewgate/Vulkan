@@ -942,11 +942,13 @@ class VulkanExample : public VulkanExampleBase {
 
     shaderStages[0] = loadShader(
         getAssetPath() +
-            "shaders/projection_perspective_texture_mapping_addressmode/texture.vert.spv",
+            "shaders/projection_perspective_texture_mapping_addressmode/"
+            "texture.vert.spv",
         VK_SHADER_STAGE_VERTEX_BIT);
     shaderStages[1] = loadShader(
         getAssetPath() +
-            "shaders/projection_perspective_texture_mapping_addressmode/texture.frag.spv",
+            "shaders/projection_perspective_texture_mapping_addressmode/"
+            "texture.frag.spv",
         VK_SHADER_STAGE_FRAGMENT_BIT);
 
     VkGraphicsPipelineCreateInfo pipelineCreateInfo =

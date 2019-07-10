@@ -613,18 +613,11 @@ class VulkanExample : public VulkanExampleBase {
     float topAtAnyZ = top * zEye / (-1 * near) * scale;
 
     // Setup vertices for a single uv-mapped quad made from two triangles
-    std::vector<Vertex> vertices = {{{leftAtAnyZ, bottomAtAnyZ, zEye},
-                                     {0.0f, 0.0f},
-                                     {0.0f, 0.0f, 1.0f}},
-                                    {{rightAtAnyZ, bottomAtAnyZ, zEye},
-                                     {1.0f, 0.0f},
-                                     {0.0f, 0.0f, 1.0f}},
-                                    {{rightAtAnyZ, topAtAnyZ, zEye},
-                                     {1.0f, 1.0f},
-                                     {0.0f, 0.0f, 1.0f}},
-                                    {{leftAtAnyZ, topAtAnyZ, zEye},
-                                     {0.0f, 1.0f},
-                                     {0.0f, 0.0f, 1.0f}}};
+    std::vector<Vertex> vertices = {
+        {{leftAtAnyZ, bottomAtAnyZ, zEye}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+        {{rightAtAnyZ, bottomAtAnyZ, zEye}, {1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+        {{rightAtAnyZ, topAtAnyZ, zEye}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
+        {{leftAtAnyZ, topAtAnyZ, zEye}, {0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}}};
 
     // Setup indices
     std::vector<uint32_t> indices = {0, 1, 2, 2, 3, 0};
@@ -768,7 +761,6 @@ class VulkanExample : public VulkanExampleBase {
                            static_cast<uint32_t>(writeDescriptorSets.size()),
                            writeDescriptorSets.data(), 0, NULL);
   }
-
 
   void preparePipelines() {
     VkPipelineInputAssemblyStateCreateInfo inputAssemblyState =

@@ -12,7 +12,8 @@ layout(binding = 0) uniform UBO {
   mat4 projection;
   mat4 model;
   vec4 lightPos;
-} ubo;
+}
+ubo;
 
 layout(location = 0) out vec3 outNormal;
 layout(location = 1) out vec3 outColor;
