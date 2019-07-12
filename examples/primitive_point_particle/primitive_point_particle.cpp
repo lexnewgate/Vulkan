@@ -630,10 +630,12 @@ class VulkanExample : public VulkanExampleBase {
     {
       // Shaders
       shaderStages[0] =
-          loadShader(getAssetPath() + "shaders/particlefire/normalmap.vert.spv",
+          loadShader(getAssetPath() +
+                         "shaders/primitive_point_particle/normalmap.vert.spv",
                      VK_SHADER_STAGE_VERTEX_BIT);
       shaderStages[1] =
-          loadShader(getAssetPath() + "shaders/particlefire/normalmap.frag.spv",
+          loadShader(getAssetPath() +
+                         "shaders/primitive_point_particle/normalmap.frag.spv",
                      VK_SHADER_STAGE_FRAGMENT_BIT);
 
       // Vertex input state
