@@ -440,7 +440,18 @@ class VulkanExample : public VulkanExampleBase {
     float bottomAtAnyZ = bottom * zEye / (-near) * scale;
     float topAtAnyZ = top * zEye / (-near) * scale;
 
+    /*
     // Setup vertices.
+    // Used in program list 1-2.
+    std::vector<Vertex> vertexBuffer = {
+        {{leftAtAnyZ, bottomAtAnyZ, zEye}, {1.0f, 0.0f, 0.0f}},
+        {{rightAtAnyZ, bottomAtAnyZ, zEye}, {0.0f, 1.0f, 0.0f}},
+        {{rightAtAnyZ, topAtAnyZ, zEye}, {0.0f, 0.0f, 1.0f}},
+        {{leftAtAnyZ, topAtAnyZ, zEye}, {0.0f, 1.0f, 0.0f}}};
+    */
+
+    // Setup vertices.
+    // Used in program list 2-2.
     std::vector<Vertex> vertexBuffer = {
         {{leftAtAnyZ, bottomAtAnyZ, zEye}, {0.5f, 0.0f, 0.0f}},
         {{rightAtAnyZ, bottomAtAnyZ, zEye}, {0.0f, 0.0f, 0.0f}},
@@ -1075,8 +1086,7 @@ class VulkanExample : public VulkanExampleBase {
         VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
     rasterizationState.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizationState.cullMode = VK_CULL_MODE_BACK_BIT;
-    rasterizationState.frontFace =
-        VK_FRONT_FACE_CLOCKWISE;  // VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    rasterizationState.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterizationState.depthClampEnable = VK_FALSE;
     rasterizationState.rasterizerDiscardEnable = VK_FALSE;
     rasterizationState.depthBiasEnable = VK_FALSE;
