@@ -387,7 +387,9 @@ class VulkanExampleBase {
   // Called when view change occurs
   // Can be overriden in derived class to e.g. update uniform buffers
   // Containing view dependant matrices
-  virtual void viewChanged();
+  // For this book, we didn't need viewChanged so we left viewChanged blank.
+  // Change this to virtual may add real viewChanged support, but not test.
+  void viewChanged();
   /** @brief (Virtual) Called after a key was pressed, can be used to do custom
    * key handling */
   virtual void keyPressed(uint32_t);
