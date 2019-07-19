@@ -1,13 +1,12 @@
-# Vulkan C++ 例子
+# Vulkan C++ 示例
 
 ## 代码的获取和编译
 
-示例的[Vulkan源代码](https://github.com/math3d/Vulkan)，是基于SaschaWillems开源的[示例程序](https://github.com/SaschaWillems/Vulkan)修改而来。可以运行在Ubuntu和Windows环境。
+示例的[Vulkan源代码](https://github.com/math3d/Vulkan)，是基于SaschaWillems开源的[示例程序](https://github.com/SaschaWillems/Vulkan)修改而来。可以运行在Ubuntu和Windows环境（调整Makefile应该可以运行于Android，但是未经验证）。
 
 Vulkan源码的获得：
 ```
 $git clone https://github.com/math3d/Vulkan.git
-$git checkout -b  projection_perspective remotes/origin/projection_perspective
 $git submodule init
 $git submodule update
 ```
@@ -24,7 +23,7 @@ $cmake -G "Visual Studio 15 2017 Win64"
 ```
 用Visual Studio 打开项目vulkanExamples.sln，进行编译。
 
-## 主要例子
+## 主要示例
 
 #### 第1章 	3D程序分析方法
 
