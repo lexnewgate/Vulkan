@@ -61,22 +61,7 @@ struct Quad {
   vec3 v3;
 };
 
-//#define USE_PLANES
-//#define USE_SPHERES
-
 #define USE_QUADS 1
-
-#ifdef USE_SPHERES
-layout(std140, binding = 2) buffer Spheres {
-  Sphere spheres[];
-};
-#endif
-
-#ifdef USE_PLANES
-layout(std140, binding = 3) buffer Planes {
-  Plane planes[];
-};
-#endif
 
 #ifdef USE_QUADS
 layout(std140, binding = 2) buffer Quads {
@@ -187,32 +172,6 @@ float quadIntersect(vec3 rayO, vec3 rayD, Quad quad) {
     return t;
   else
     return 0.0;
-
-#if 0
-  vec3 pos = rayO + t * rayD;
-  float y12 = triangle.v1.y-triangle.v2.y;
-  float y02 = triangle.v0.y-triangle.v2.y;
-  float yp2 = pos.y-triangle.v2.y;
-  
-  
-  float x21 = triangle.v2.x-triangle.v1.x;
-  float x02 = triangle.v0.x-triangle.v2.x;
-  float xp2 = pos.x-triangle.v2.x;
-  
-  float denom = y12*x02 + x21*y02;
-  float w0 = (y12*xp2+x21*yp2)/denom;
-  if (w0< 0 || w0>1)
-  	return 0.0;
-  float w1 = (-y02*xp2+x02*yp2) /denom;
-  if (w1< 0 || w1>1)
-  	return 0.0;
-
-  float w2 = 1-w0-w1;
-  if (w2 < 0 || w2>1)
-  	return 0.0;
-
-  return t;
-#endif
 }
 
 int intersect(in vec3 rayO, in vec3 rayD, inout float resT) {
@@ -224,26 +183,6 @@ int intersect(in vec3 rayO, in vec3 rayD, inout float resT) {
     if ((tSphere > EPSILON) && (tSphere < resT)) {
       id = quads[i].id;
       resT = tSphere;
-    }
-  }
-#endif
-
-#ifdef USE_SPHERES
-  for (int i = 0; i < spheres.length(); i++) {
-    float tSphere = sphereIntersect(rayO, rayD, spheres[i]);
-    if ((tSphere > EPSILON) && (tSphere < resT)) {
-      id = spheres[i].id;
-      resT = tSphere;
-    }
-  }
-#endif
-
-#ifdef USE_PLANES
-  for (int i = 0; i < planes.length(); i++) {
-    float tplane = planeIntersect(rayO, rayD, planes[i]);
-    if ((tplane > EPSILON) && (tplane < resT)) {
-      id = planes[i].id;
-      resT = tplane;
     }
   }
 #endif
@@ -307,16 +246,11 @@ vec3 renderScene(inout vec3 rayO, inout vec3 rayD, inout int id) {
   vec3 lightVec = normalize(ubo.lightPos - pos);
   vec3 normal;
 
-  // Spheres
 #ifdef USE_QUADS
+  // Quads
   for (int i = 0; i < quads.length(); i++) {
     if (objectID == quads[i].id) {
       normal = quads[i].normal;
-      #if 0
-      float diffuse = lightDiffuse(normal, lightVec);
-      float specular = lightSpecular(normal, lightVec, quads[i].specular);
-      color = diffuse * quads[i].diffuse + specular;
-      #endif
       color = closestHit(lightVec, normal, quads[i].diffuse, quads[i].specular);
 
       if (t == 0.0) {
@@ -330,29 +264,6 @@ vec3 renderScene(inout vec3 rayO, inout vec3 rayD, inout int id) {
   }
 #endif
 
-// Spheres
-#ifdef USE_PLANES
-  for (int i = 0; i < planes.length(); i++) {
-    if (objectID == planes[i].id) {
-      normal = planes[i].normal;
-      float diffuse = lightDiffuse(normal, lightVec);
-      float specular = lightSpecular(normal, lightVec, planes[i].specular);
-      color = diffuse * planes[i].diffuse + specular;
-    }
-  }
-#endif
-
-#ifdef USE_SPHERES
-  // Planes
-  for (int i = 0; i < spheres.length(); i++) {
-    if (objectID == spheres[i].id) {
-      normal = sphereNormal(pos, spheres[i]);
-      float diffuse = lightDiffuse(normal, lightVec);
-      float specular = lightSpecular(normal, lightVec, spheres[i].specular);
-      color = diffuse * spheres[i].diffuse + specular;
-    }
-  }
-#endif
   if (id == -1)
     return color;
 

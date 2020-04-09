@@ -47,7 +47,7 @@ struct Plane {
   float specular;
   int id;
 };
-//#define USE_PLANES
+
 #define USE_SPHERES
 #define USE_SHADOW
 //#define USE_FOG
@@ -55,12 +55,6 @@ struct Plane {
 #ifdef USE_SPHERES
 layout(std140, binding = 2) buffer Spheres {
   Sphere spheres[];
-};
-#endif
-
-#ifdef USE_PLANES
-layout(std140, binding = 3) buffer Planes {
-  Plane planes[];
 };
 #endif
 
@@ -99,22 +93,6 @@ vec3 sphereNormal(in vec3 pos, in Sphere sphere) {
   return (pos - sphere.pos) / sphere.radius;
 }
 
-// Plane ===========================================================
-
-float planeIntersect(vec3 rayO, vec3 rayD, Plane plane) {
-  float d = dot(rayD, plane.normal);
-
-  if (d == 0.0)
-    return 0.0;
-
-  float t = -(plane.distance + dot(rayO, plane.normal)) / d;
-
-  if (t < 0.0)
-    return 0.0;
-
-  return t;
-}
-
 int intersect(in vec3 rayO, in vec3 rayD, inout float resT) {
   int id = -1;
 #ifdef USE_SPHERES
@@ -123,16 +101,6 @@ int intersect(in vec3 rayO, in vec3 rayD, inout float resT) {
     if ((tSphere > EPSILON) && (tSphere < resT)) {
       id = spheres[i].id;
       resT = tSphere;
-    }
-  }
-#endif
-
-#ifdef USE_PLANES
-  for (int i = 0; i < planes.length(); i++) {
-    float tplane = planeIntersect(rayO, rayD, planes[i]);
-    if ((tplane > EPSILON) && (tplane < resT)) {
-      id = planes[i].id;
-      resT = tplane;
     }
   }
 #endif
@@ -193,32 +161,12 @@ vec3 renderScene(inout vec3 rayO, inout vec3 rayD, inout int id) {
   vec3 lightVec = normalize(ubo.lightPos - pos);
   vec3 normal;
 
-// Spheres
-#ifdef USE_PLANES
-  for (int i = 0; i < planes.length(); i++) {
-    if (objectID == planes[i].id) {
-      normal = planes[i].normal;
-      #if 0
-      float diffuse = lightDiffuse(normal, lightVec);
-      float specular = lightSpecular(normal, lightVec, spheres[i].specular);
-      color = diffuse * spheres[i].diffuse + specular;
-      #endif
-      color = closestHit(lightVec, normal, planes[i].diffuse, planes[i].specular);
-    }
-  }
-#endif
 #ifdef USE_SPHERES
-  // Planes
+  // Spheres
   for (int i = 0; i < spheres.length(); i++) {
     if (objectID == spheres[i].id) {
       normal = sphereNormal(pos, spheres[i]);
-      #if 0
-      float diffuse = lightDiffuse(normal, lightVec);
-      float specular = lightSpecular(normal, lightVec, spheres[i].specular);
-      color = diffuse * spheres[i].diffuse + specular;
-      #endif
       color = closestHit(lightVec, normal, spheres[i].diffuse, spheres[i].specular);
-
     }
   }
 #endif

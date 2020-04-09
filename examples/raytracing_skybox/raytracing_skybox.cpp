@@ -34,7 +34,7 @@
 #define TEX_DIM 2048
 #endif
 #define USE_PLANES
-//#define USE_SPHERES
+
 class VulkanExample : public VulkanExampleBase {
  public:
   vks::Texture textureComputeTarget;
@@ -373,65 +373,12 @@ class VulkanExample : public VulkanExampleBase {
     vks::Buffer stagingBuffer;
     VkCommandBuffer copyCmd;
     VkBufferCopy copyRegion = {};
-#ifdef USE_SPHERES
-    // Spheres
-    std::vector<Sphere> spheres;
-    spheres.push_back(newSphere(glm::vec3(0.0f, -0.0f, -4.0f), 1.0f,
-                                glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
-    // spheres.push_back(newSphere(glm::vec3(0.0f, 1.0f, -0.5f), 1.0f,
-    // glm::vec3(0.65f, 0.77f, 0.97f), 32.0f));
-    // spheres.push_back(newSphere(glm::vec3(-1.75f, -0.75f, -0.5f), 1.25f,
-    // glm::vec3(0.9f, 0.76f, 0.46f), 32.0f));
-    storageBufferSize = spheres.size() * sizeof(Sphere);
-
-    vulkanDevice->createBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                                   VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                               &stagingBuffer, storageBufferSize,
-                               spheres.data());
-
-    vulkanDevice->createBuffer(
-        // The SSBO will be used as a storage buffer for the compute pipeline
-        // and as a vertex buffer in the graphics pipeline
-        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
-            VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &compute.storageBuffers.spheres,
-        storageBufferSize);
-
-    // Copy to staging buffer
-    copyCmd = VulkanExampleBase::createCommandBuffer(
-        VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
-    copyRegion = {};
-    copyRegion.size = storageBufferSize;
-    vkCmdCopyBuffer(copyCmd, stagingBuffer.buffer,
-                    compute.storageBuffers.spheres.buffer, 1, &copyRegion);
-    VulkanExampleBase::flushCommandBuffer(copyCmd, queue, true);
-
-    stagingBuffer.destroy();
-#endif
 
 #ifdef USE_PLANES
     // Planes
     std::vector<Plane> planes;
     const float roomDim = 4.0f;
-#if 0
-    planes.push_back(
-        newPlane(glm::vec3(0.0f, 1.0f, 0.0f), roomDim, glm::vec3(1.0f), 32.0f));
-    planes.push_back(newPlane(glm::vec3(0.0f, -1.0f, 0.0f), roomDim,
-                              glm::vec3(1.0f), 32.0f));
-    planes.push_back(
-        newPlane(glm::vec3(0.0f, 0.0f, 1.0f), roomDim, glm::vec3(1.0f), 32.0f));
-    planes.push_back(newPlane(glm::vec3(0.0f, 0.0f, -1.0f), roomDim,
-                              glm::vec3(0.0f), 32.0f));
-    planes.push_back(newPlane(glm::vec3(-1.0f, 0.0f, 0.0f), roomDim,
-                              glm::vec3(1.0f, 0.0f, 0.0f), 32.0f));
-    planes.push_back(newPlane(glm::vec3(1.0f, 0.0f, 0.0f), roomDim,
-                              glm::vec3(0.0f, 1.0f, 0.0f), 32.0f));
-#endif
-#if 0
-    planes.push_back(
-        newPlane(glm::vec3(0.0f, 0.0f, 1.0f), roomDim, glm::vec3(1.0f,0.5f,0.5f), 32.0f));
-#endif
+
 #if 1
 
     planes.push_back(
@@ -646,13 +593,9 @@ class VulkanExample : public VulkanExampleBase {
         // Binding 1: Uniform buffer block
         vks::initializers::descriptorSetLayoutBinding(
             VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1),
-#ifdef USE_SPHERES
-        // Binding 1: Shader storage buffer for the spheres
-        vks::initializers::descriptorSetLayoutBinding(
-            VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 2),
-#endif
+
 #ifdef USE_PLANES
-        // Binding 1: Shader storage buffer for the planes
+        // Binding 3: Shader storage buffer for the planes
         vks::initializers::descriptorSetLayoutBinding(
             VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 3),
 #endif
@@ -688,14 +631,9 @@ class VulkanExample : public VulkanExampleBase {
         vks::initializers::writeDescriptorSet(
             compute.descriptorSet, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1,
             &compute.uniformBuffer.descriptor),
-#ifdef USE_SPHERES
-        // Binding 2: Shader storage buffer for the spheres
-        vks::initializers::writeDescriptorSet(
-            compute.descriptorSet, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 2,
-            &compute.storageBuffers.spheres.descriptor),
-#endif
-// Binding 2: Shader storage buffer for the planes
+
 #ifdef USE_PLANES
+        // Binding 3: Shader storage buffer for the planes
         vks::initializers::writeDescriptorSet(
             compute.descriptorSet, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 3,
             &compute.storageBuffers.planes.descriptor)

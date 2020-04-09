@@ -617,12 +617,12 @@ class VulkanExample : public VulkanExampleBase {
         vks::initializers::descriptorSetLayoutBinding(
             VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1),
 #ifdef USE_SPHERES
-        // Binding 1: Shader storage buffer for the spheres
+        // Binding 2: Shader storage buffer for the spheres
         vks::initializers::descriptorSetLayoutBinding(
             VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 2),
 #endif
 #ifdef USE_PLANES
-        // Binding 1: Shader storage buffer for the planes
+        // Binding 3: Shader storage buffer for the planes
         vks::initializers::descriptorSetLayoutBinding(
             VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 3),
 #endif
@@ -664,8 +664,9 @@ class VulkanExample : public VulkanExampleBase {
             compute.descriptorSet, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 2,
             &compute.storageBuffers.spheres.descriptor),
 #endif
-// Binding 2: Shader storage buffer for the planes
+
 #ifdef USE_PLANES
+        // Binding 3: Shader storage buffer for the planes
         vks::initializers::writeDescriptorSet(
             compute.descriptorSet, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 3,
             &compute.storageBuffers.planes.descriptor)
@@ -725,15 +726,6 @@ class VulkanExample : public VulkanExampleBase {
   }
 
   void updateUniformBuffers() {
-#if 0
-		compute.ubo.lightPos.x = 0.0f + sin(glm::radians(timer * 360.0f)) * cos(glm::radians(timer * 360.0f)) * 2.0f;
-		compute.ubo.lightPos.y = 0.0f + sin(glm::radians(timer * 360.0f)) * 2.0f;
-		compute.ubo.lightPos.z = 0.0f + cos(glm::radians(timer * 360.0f)) * 2.0f;
-		compute.ubo.camera.pos = camera.position * -1.0f;
-		VK_CHECK_RESULT(compute.uniformBuffer.map());
-		memcpy(compute.uniformBuffer.mapped, &compute.ubo, sizeof(compute.ubo));
-		compute.uniformBuffer.unmap();
-#endif
 #if 1
     compute.ubo.lightPos.x = 0.0f + sin(glm::radians(timer * 360.0f)) *
                                         cos(glm::radians(timer * 360.0f)) *

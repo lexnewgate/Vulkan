@@ -193,30 +193,20 @@ vec3 renderScene(inout vec3 rayO, inout vec3 rayD, inout int id) {
   vec3 lightVec = normalize(ubo.lightPos - pos);
   vec3 normal;
 
-// Spheres
 #ifdef USE_PLANES
+  // Planes
   for (int i = 0; i < planes.length(); i++) {
     if (objectID == planes[i].id) {
       normal = planes[i].normal;
-      #if 0
-      float diffuse = lightDiffuse(normal, lightVec);
-      float specular = lightSpecular(normal, lightVec, planes[i].specular);
-      color = diffuse * planes[i].diffuse + specular;
-      #endif
       color = closestHit(lightVec, normal, planes[i].diffuse, planes[i].specular);
     }
   }
 #endif
 #ifdef USE_SPHERES
-  // Planes
+  // Spheres
   for (int i = 0; i < spheres.length(); i++) {
     if (objectID == spheres[i].id) {
       normal = sphereNormal(pos, spheres[i]);
-      #if 0
-      float diffuse = lightDiffuse(normal, lightVec);
-      float specular = lightSpecular(normal, lightVec, spheres[i].specular);
-      color = diffuse * spheres[i].diffuse + specular;
-      #endif
       color = closestHit(lightVec, normal, spheres[i].diffuse, spheres[i].specular);
     }
   }
