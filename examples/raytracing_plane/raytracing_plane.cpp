@@ -622,7 +622,7 @@ class VulkanExample : public VulkanExampleBase {
         vks::initializers::descriptorSetLayoutBinding(
             VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 1),
 #ifdef USE_PLANES
-        // Binding 1: Shader storage buffer for the planes
+        // Binding 3: Shader storage buffer for the planes
         vks::initializers::descriptorSetLayoutBinding(
             VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT, 3),
 #endif
