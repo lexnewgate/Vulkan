@@ -51,7 +51,7 @@ static float zEye = -5.0f;
 
 #define PI 3.14159265
 float DEG2RAD = PI / 180.0;
-
+#define USE_FENCE
 class VulkanExample : public VulkanExampleBase {
 public:
   // Vertex layout used in this example
@@ -128,12 +128,13 @@ public:
   // Synchronization primitives
   // Synchronization is an important concept of Vulkan that OpenGL mostly hid
   // away. Getting this right is crucial to using Vulkan.
-
+#ifdef USE_SEMAPHORE
   // Semaphores
   // Used to coordinate operations within the graphics queue and ensure correct
   // command ordering
   VkSemaphore presentCompleteSemaphore;
   VkSemaphore renderCompleteSemaphore;
+#endif
 
 #ifdef USE_FENCE
   // Fences is used to check the completion of queue operations (e.g. command
@@ -163,10 +164,10 @@ public:
 
     vkDestroyBuffer(device, uniformBufferVS.buffer, nullptr);
     vkFreeMemory(device, uniformBufferVS.memory, nullptr);
-
+#ifdef USE_SEMAPHORE
     vkDestroySemaphore(device, presentCompleteSemaphore, nullptr);
     vkDestroySemaphore(device, renderCompleteSemaphore, nullptr);
-
+#endif
 #ifdef USE_FENCE
     for (auto &fence : waitFences) {
       vkDestroyFence(device, fence, nullptr);
@@ -199,6 +200,7 @@ public:
 
   // Create the Vulkan synchronization primitives used in this example
   void prepareSynchronizationPrimitives() {
+#ifdef USE_SEMAPHORE
     // Semaphores (Used for correct command ordering)
     VkSemaphoreCreateInfo semaphoreCreateInfo = {};
     semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -214,13 +216,14 @@ public:
     VK_CHECK_RESULT(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr,
                                       &renderCompleteSemaphore));
 
+#endif
+#ifdef USE_FENCE
     // Fences (Used to check draw command buffer completion)
     VkFenceCreateInfo fenceCreateInfo = {};
     fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     // Create in signaled state so we don't wait on first render of each command
     // buffer
     fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-#ifdef USE_FENCE
     waitFences.resize(drawCmdBuffers.size());
     for (auto &fence : waitFences) {
       VK_CHECK_RESULT(vkCreateFence(device, &fenceCreateInfo, nullptr, &fence));
@@ -373,10 +376,13 @@ public:
 
   void draw() {
     // Get next image in the swap chain (back/front buffer)
+#ifdef USE_SEMAPHORE
     VK_CHECK_RESULT(
         swapChain.acquireNextImage(presentCompleteSemaphore, &currentBuffer));
-
+#endif
 #ifdef USE_FENCE
+    VK_CHECK_RESULT(swapChain.acquireNextImage(VK_NULL_HANDLE, &currentBuffer));
+
     // Use a fence to wait until the command buffer has finished execution
     // before using it again
     VK_CHECK_RESULT(vkWaitForFences(device, 1, &waitFences[currentBuffer],
@@ -395,6 +401,7 @@ public:
     submitInfo.pWaitDstStageMask =
         &waitStageMask; // Pointer to the list of pipeline stages that the
                         // semaphore waits will occur at
+#ifdef USE_SEMAPHORE
     submitInfo.pWaitSemaphores =
         &presentCompleteSemaphore; // Semaphore(s) to wait upon before the
                                    // submitted command buffer starts executing
@@ -403,6 +410,7 @@ public:
         &renderCompleteSemaphore; // Semaphore(s) to be signaled when command
                                   // buffers have completed
     submitInfo.signalSemaphoreCount = 1; // One signal semaphore
+#endif
     submitInfo.pCommandBuffers =
         &drawCmdBuffers[currentBuffer]; // Command buffers(s) to execute in
                                         // this batch (submission)
@@ -413,10 +421,16 @@ public:
            // Submit to the graphics queue passing a wait fence
     VK_CHECK_RESULT(
         vkQueueSubmit(queue, 1, &submitInfo, waitFences[currentBuffer]));
-#else
-    VK_CHECK_RESULT(vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE));
-#endif
+    // Present the current buffer to the swap chain
+    // Pass the semaphore signaled by the command buffer submission from the
+    // submit info as the wait semaphore for swap chain presentation This
+    // ensures that the image is not presented to the windowing system until all
+    // commands have been submitted
+    VK_CHECK_RESULT(swapChain.queuePresent(queue, currentBuffer));
 
+#endif
+#ifdef USE_SEMAPHORE
+    VK_CHECK_RESULT(vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE));
     // Present the current buffer to the swap chain
     // Pass the semaphore signaled by the command buffer submission from the
     // submit info as the wait semaphore for swap chain presentation This
@@ -424,6 +438,8 @@ public:
     // commands have been submitted
     VK_CHECK_RESULT(
         swapChain.queuePresent(queue, currentBuffer, renderCompleteSemaphore));
+
+#endif
   }
 
   // Prepare vertex and index buffers for an indexed triangle
