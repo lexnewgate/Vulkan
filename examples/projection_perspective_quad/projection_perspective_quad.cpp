@@ -10,12 +10,12 @@
  */
 
 #include <assert.h>
+#include <exception>
+#include <fstream>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <exception>
-#include <fstream>
 #include <vector>
 
 #define GLM_FORCE_RADIANS
@@ -23,8 +23,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <vulkan/vulkan.h>
 #include "vulkanexamplebase.h"
+#include <vulkan/vulkan.h>
 
 // Set to "true" to enable Vulkan's validation layers (see vulkandebug.cpp for
 // details)
@@ -53,7 +53,7 @@ static float zEye = -5.0f;
 float DEG2RAD = PI / 180.0;
 
 class VulkanExample : public VulkanExampleBase {
- public:
+public:
   // Vertex layout used in this example
   struct Vertex {
     float position[3];
@@ -62,9 +62,9 @@ class VulkanExample : public VulkanExampleBase {
 
   // Vertex buffer and attributes
   struct {
-    VkDeviceMemory memory;  // Handle to the device memory for this buffer
-    VkBuffer buffer;  // Handle to the Vulkan buffer object that the memory is
-                      // bound to
+    VkDeviceMemory memory; // Handle to the device memory for this buffer
+    VkBuffer buffer; // Handle to the Vulkan buffer object that the memory is
+                     // bound to
   } vertices;
 
   // Index buffer
@@ -135,10 +135,11 @@ class VulkanExample : public VulkanExampleBase {
   VkSemaphore presentCompleteSemaphore;
   VkSemaphore renderCompleteSemaphore;
 
-  // Fences
-  // Used to check the completion of queue operations (e.g. command buffer
-  // execution)
+#ifdef USE_FENCE
+  // Fences is used to check the completion of queue operations (e.g. command
+  // buffer execution)
   std::vector<VkFence> waitFences;
+#endif
 
   VulkanExample() : VulkanExampleBase(ENABLE_VALIDATION) {
     zoom = -2.5f;
@@ -166,9 +167,11 @@ class VulkanExample : public VulkanExampleBase {
     vkDestroySemaphore(device, presentCompleteSemaphore, nullptr);
     vkDestroySemaphore(device, renderCompleteSemaphore, nullptr);
 
-    for (auto& fence : waitFences) {
+#ifdef USE_FENCE
+    for (auto &fence : waitFences) {
       vkDestroyFence(device, fence, nullptr);
     }
+#endif
   }
 
   // This function is used to request a device memory type that supports all the
@@ -217,10 +220,12 @@ class VulkanExample : public VulkanExampleBase {
     // Create in signaled state so we don't wait on first render of each command
     // buffer
     fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+#ifdef USE_FENCE
     waitFences.resize(drawCmdBuffers.size());
-    for (auto& fence : waitFences) {
+    for (auto &fence : waitFences) {
       VK_CHECK_RESULT(vkCreateFence(device, &fenceCreateInfo, nullptr, &fence));
     }
+#endif
   }
 
   // Get a new command buffer from the command pool
@@ -371,11 +376,13 @@ class VulkanExample : public VulkanExampleBase {
     VK_CHECK_RESULT(
         swapChain.acquireNextImage(presentCompleteSemaphore, &currentBuffer));
 
+#ifdef USE_FENCE
     // Use a fence to wait until the command buffer has finished execution
     // before using it again
     VK_CHECK_RESULT(vkWaitForFences(device, 1, &waitFences[currentBuffer],
                                     VK_TRUE, UINT64_MAX));
     VK_CHECK_RESULT(vkResetFences(device, 1, &waitFences[currentBuffer]));
+#endif
 
     // Pipeline stage at which the queue submission will wait (via
     // pWaitSemaphores)
@@ -386,24 +393,29 @@ class VulkanExample : public VulkanExampleBase {
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.pWaitDstStageMask =
-        &waitStageMask;  // Pointer to the list of pipeline stages that the
-                         // semaphore waits will occur at
+        &waitStageMask; // Pointer to the list of pipeline stages that the
+                        // semaphore waits will occur at
     submitInfo.pWaitSemaphores =
-        &presentCompleteSemaphore;  // Semaphore(s) to wait upon before the
-                                    // submitted command buffer starts executing
-    submitInfo.waitSemaphoreCount = 1;  // One wait semaphore
+        &presentCompleteSemaphore; // Semaphore(s) to wait upon before the
+                                   // submitted command buffer starts executing
+    submitInfo.waitSemaphoreCount = 1; // One wait semaphore
     submitInfo.pSignalSemaphores =
-        &renderCompleteSemaphore;  // Semaphore(s) to be signaled when command
-                                   // buffers have completed
-    submitInfo.signalSemaphoreCount = 1;  // One signal semaphore
+        &renderCompleteSemaphore; // Semaphore(s) to be signaled when command
+                                  // buffers have completed
+    submitInfo.signalSemaphoreCount = 1; // One signal semaphore
     submitInfo.pCommandBuffers =
-        &drawCmdBuffers[currentBuffer];  // Command buffers(s) to execute in
-                                         // this batch (submission)
-    submitInfo.commandBufferCount = 1;   // One command buffer
+        &drawCmdBuffers[currentBuffer]; // Command buffers(s) to execute in
+                                        // this batch (submission)
+    submitInfo.commandBufferCount =
+        1; // One command buffer
 
-    // Submit to the graphics queue passing a wait fence
+#ifdef USE_FENCE
+           // Submit to the graphics queue passing a wait fence
     VK_CHECK_RESULT(
         vkQueueSubmit(queue, 1, &submitInfo, waitFences[currentBuffer]));
+#else
+    VK_CHECK_RESULT(vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE));
+#endif
 
     // Present the current buffer to the swap chain
     // Pass the semaphore signaled by the command buffer submission from the
@@ -426,8 +438,8 @@ class VulkanExample : public VulkanExampleBase {
 
     aspect = (float)viewportWidth / viewportHeight;
     float tangent = tan(fovY / 2 * DEG2RAD);
-    height = near * tangent;  // half height of near plane
-    width = height * aspect;  // half width of near plane
+    height = near * tangent; // half height of near plane
+    width = height * aspect; // half width of near plane
 
     left = -width;
     right = width;
@@ -471,7 +483,7 @@ class VulkanExample : public VulkanExampleBase {
     memAlloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     VkMemoryRequirements memReqs;
 
-    void* data;
+    void *data;
 
     if (useStagingBuffers) {
       // Static data like vertex and index buffer should be stored on the device
@@ -820,9 +832,9 @@ class VulkanExample : public VulkanExampleBase {
       std::array<VkImageView, 2> attachments;
       attachments[0] =
           swapChain.buffers[i]
-              .view;  // Color attachment is the view of the swapchain image
-      attachments[1] = depthStencil.view;  // Depth/Stencil attachment is the
-                                           // same for all frame buffers
+              .view; // Color attachment is the view of the swapchain image
+      attachments[1] = depthStencil.view; // Depth/Stencil attachment is the
+                                          // same for all frame buffers
 
       VkFramebufferCreateInfo frameBufferCreateInfo = {};
       frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -858,88 +870,87 @@ class VulkanExample : public VulkanExampleBase {
 
     // Color attachment
     attachments[0].format =
-        swapChain
-            .colorFormat;  // Use the color format selected by the swapchain
+        swapChain.colorFormat; // Use the color format selected by the swapchain
     attachments[0].samples =
-        VK_SAMPLE_COUNT_1_BIT;  // We don't use multi sampling in this example
+        VK_SAMPLE_COUNT_1_BIT; // We don't use multi sampling in this example
     attachments[0].loadOp =
-        VK_ATTACHMENT_LOAD_OP_CLEAR;  // Clear this attachment at the start of
-                                      // the render pass
+        VK_ATTACHMENT_LOAD_OP_CLEAR; // Clear this attachment at the start of
+                                     // the render pass
     attachments[0].storeOp =
-        VK_ATTACHMENT_STORE_OP_STORE;  // Keep it's contents after the render
-                                       // pass is finished (for displaying it)
+        VK_ATTACHMENT_STORE_OP_STORE; // Keep it's contents after the render
+                                      // pass is finished (for displaying it)
     attachments[0].stencilLoadOp =
-        VK_ATTACHMENT_LOAD_OP_DONT_CARE;  // We don't use stencil, so don't care
-                                          // for load
+        VK_ATTACHMENT_LOAD_OP_DONT_CARE; // We don't use stencil, so don't care
+                                         // for load
     attachments[0].stencilStoreOp =
-        VK_ATTACHMENT_STORE_OP_DONT_CARE;  // Same for store
+        VK_ATTACHMENT_STORE_OP_DONT_CARE; // Same for store
     attachments[0].initialLayout =
-        VK_IMAGE_LAYOUT_UNDEFINED;  // Layout at render pass start. Initial
-                                    // doesn't matter, so we use undefined
+        VK_IMAGE_LAYOUT_UNDEFINED; // Layout at render pass start. Initial
+                                   // doesn't matter, so we use undefined
     attachments[0].finalLayout =
-        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;  // Layout to which the attachment is
-                                          // transitioned when the render pass
-                                          // is finished As we want to present
-                                          // the color buffer to the swapchain,
-                                          // we transition to PRESENT_KHR
+        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR; // Layout to which the attachment is
+                                         // transitioned when the render pass
+                                         // is finished As we want to present
+                                         // the color buffer to the swapchain,
+                                         // we transition to PRESENT_KHR
     // Depth attachment
     attachments[1].format =
-        depthFormat;  // A proper depth format is selected in the example base
+        depthFormat; // A proper depth format is selected in the example base
     attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
     attachments[1].loadOp =
-        VK_ATTACHMENT_LOAD_OP_CLEAR;  // Clear depth at start of first subpass
+        VK_ATTACHMENT_LOAD_OP_CLEAR; // Clear depth at start of first subpass
     attachments[1].storeOp =
-        VK_ATTACHMENT_STORE_OP_DONT_CARE;  // We don't need depth after render
-                                           // pass has finished (DONT_CARE may
-                                           // result in better performance)
+        VK_ATTACHMENT_STORE_OP_DONT_CARE; // We don't need depth after render
+                                          // pass has finished (DONT_CARE may
+                                          // result in better performance)
     attachments[1].stencilLoadOp =
-        VK_ATTACHMENT_LOAD_OP_DONT_CARE;  // No stencil
+        VK_ATTACHMENT_LOAD_OP_DONT_CARE; // No stencil
     attachments[1].stencilStoreOp =
-        VK_ATTACHMENT_STORE_OP_DONT_CARE;  // No Stencil
+        VK_ATTACHMENT_STORE_OP_DONT_CARE; // No Stencil
     attachments[1].initialLayout =
-        VK_IMAGE_LAYOUT_UNDEFINED;  // Layout at render pass start. Initial
-                                    // doesn't matter, so we use undefined
+        VK_IMAGE_LAYOUT_UNDEFINED; // Layout at render pass start. Initial
+                                   // doesn't matter, so we use undefined
     attachments[1].finalLayout =
-        VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;  // Transition to
-                                                           // depth/stencil
-                                                           // attachment
+        VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL; // Transition to
+                                                          // depth/stencil
+                                                          // attachment
 
     // Setup attachment references
     VkAttachmentReference colorReference = {};
-    colorReference.attachment = 0;  // Attachment 0 is color
+    colorReference.attachment = 0; // Attachment 0 is color
     colorReference.layout =
-        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;  // Attachment layout used as
-                                                   // color during the subpass
+        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; // Attachment layout used as
+                                                  // color during the subpass
 
     VkAttachmentReference depthReference = {};
-    depthReference.attachment = 1;  // Attachment 1 is color
+    depthReference.attachment = 1; // Attachment 1 is color
     depthReference.layout =
-        VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;  // Attachment used as
-                                                           // depth/stemcil used
-                                                           // during the subpass
+        VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL; // Attachment used as
+                                                          // depth/stemcil used
+                                                          // during the subpass
 
     // Setup a single subpass reference
     VkSubpassDescription subpassDescription = {};
     subpassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     subpassDescription.colorAttachmentCount =
-        1;  // Subpass uses one color attachment
+        1; // Subpass uses one color attachment
     subpassDescription.pColorAttachments =
-        &colorReference;  // Reference to the color attachment in slot 0
+        &colorReference; // Reference to the color attachment in slot 0
     subpassDescription.pDepthStencilAttachment =
-        &depthReference;  // Reference to the depth attachment in slot 1
+        &depthReference; // Reference to the depth attachment in slot 1
     subpassDescription.inputAttachmentCount =
-        0;  // Input attachments can be used to sample from contents of a
-            // previous subpass
+        0; // Input attachments can be used to sample from contents of a
+           // previous subpass
     subpassDescription.pInputAttachments =
-        nullptr;  // (Input attachments not used by this example)
+        nullptr; // (Input attachments not used by this example)
     subpassDescription.preserveAttachmentCount =
-        0;  // Preserved attachments can be used to loop (and preserve)
-            // attachments through subpasses
+        0; // Preserved attachments can be used to loop (and preserve)
+           // attachments through subpasses
     subpassDescription.pPreserveAttachments =
-        nullptr;  // (Preserve attachments not used by this example)
+        nullptr; // (Preserve attachments not used by this example)
     subpassDescription.pResolveAttachments =
-        nullptr;  // Resolve attachments are resolved at the end of a sub pass
-                  // and can be used for e.g. multi sampling
+        nullptr; // Resolve attachments are resolved at the end of a sub pass
+                 // and can be used for e.g. multi sampling
 
     // Setup subpass dependencies
     // These will add the implicit ttachment layout transitionss specified by
@@ -955,9 +966,9 @@ class VulkanExample : public VulkanExampleBase {
     // First dependency at the start of the renderpass
     // Does the transition from final to initial layout
     dependencies[0].srcSubpass =
-        VK_SUBPASS_EXTERNAL;         // Producer of the dependency
-    dependencies[0].dstSubpass = 0;  // Consumer is our single subpass that will
-                                     // wait for the execution depdendency
+        VK_SUBPASS_EXTERNAL;        // Producer of the dependency
+    dependencies[0].dstSubpass = 0; // Consumer is our single subpass that will
+                                    // wait for the execution depdendency
     dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
     dependencies[0].dstStageMask =
         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
@@ -969,10 +980,10 @@ class VulkanExample : public VulkanExampleBase {
     // Second dependency at the end the renderpass
     // Does the transition from the initial to the final layout
     dependencies[1].srcSubpass =
-        0;  // Producer of the dependency is our single subpass
+        0; // Producer of the dependency is our single subpass
     dependencies[1].dstSubpass =
-        VK_SUBPASS_EXTERNAL;  // Consumer are all commands outside of the
-                              // renderpass
+        VK_SUBPASS_EXTERNAL; // Consumer are all commands outside of the
+                             // renderpass
     dependencies[1].srcStageMask =
         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
@@ -985,17 +996,17 @@ class VulkanExample : public VulkanExampleBase {
     VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassInfo.attachmentCount = static_cast<uint32_t>(
-        attachments.size());  // Number of attachments used by this render pass
+        attachments.size()); // Number of attachments used by this render pass
     renderPassInfo.pAttachments =
         attachments
-            .data();  // Descriptions of the attachments used by the render pass
-    renderPassInfo.subpassCount = 1;  // We only use one subpass in this example
+            .data(); // Descriptions of the attachments used by the render pass
+    renderPassInfo.subpassCount = 1; // We only use one subpass in this example
     renderPassInfo.pSubpasses =
-        &subpassDescription;  // Description of that subpass
+        &subpassDescription; // Description of that subpass
     renderPassInfo.dependencyCount = static_cast<uint32_t>(
-        dependencies.size());  // Number of subpass dependencies
+        dependencies.size()); // Number of subpass dependencies
     renderPassInfo.pDependencies =
-        dependencies.data();  // Subpass dependencies used by the render pass
+        dependencies.data(); // Subpass dependencies used by the render pass
 
     VK_CHECK_RESULT(
         vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass));
@@ -1007,11 +1018,11 @@ class VulkanExample : public VulkanExampleBase {
   // returns a shader module structure
   VkShaderModule loadSPIRVShader(std::string filename) {
     size_t shaderSize;
-    char* shaderCode = NULL;
+    char *shaderCode = NULL;
 
 #if defined(__ANDROID__)
     // Load shader from compressed asset
-    AAsset* asset = AAssetManager_open(androidApp->activity->assetManager,
+    AAsset *asset = AAssetManager_open(androidApp->activity->assetManager,
                                        filename.c_str(), AASSET_MODE_STREAMING);
     assert(asset);
     shaderSize = AAsset_getLength(asset);
@@ -1038,7 +1049,7 @@ class VulkanExample : public VulkanExampleBase {
       VkShaderModuleCreateInfo moduleCreateInfo{};
       moduleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
       moduleCreateInfo.codeSize = shaderSize;
-      moduleCreateInfo.pCode = (uint32_t*)shaderCode;
+      moduleCreateInfo.pCode = (uint32_t *)shaderCode;
 
       VkShaderModule shaderModule;
       VK_CHECK_RESULT(
@@ -1313,9 +1324,9 @@ class VulkanExample : public VulkanExampleBase {
                                     glm::vec3(0.0f, 0.0f, 1.0f));
 
     // Map uniform buffer and update it
-    uint8_t* pData;
+    uint8_t *pData;
     VK_CHECK_RESULT(vkMapMemory(device, uniformBufferVS.memory, 0,
-                                sizeof(uboVS), 0, (void**)&pData));
+                                sizeof(uboVS), 0, (void **)&pData));
     memcpy(pData, &uboVS, sizeof(uboVS));
     // Unmap after data has been copied
     // Note: Since we requested a host coherent memory type for the uniform
@@ -1355,17 +1366,15 @@ class VulkanExample : public VulkanExampleBase {
 
 #if defined(_WIN32)
 // Windows entry point
-VulkanExample* vulkanExample;
+VulkanExample *vulkanExample;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
   if (vulkanExample != NULL) {
     vulkanExample->handleMessages(hWnd, uMsg, wParam, lParam);
   }
   return (DefWindowProc(hWnd, uMsg, wParam, lParam));
 }
-int APIENTRY WinMain(HINSTANCE hInstance,
-                     HINSTANCE hPrevInstance,
-                     LPSTR pCmdLine,
-                     int nCmdShow) {
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+                     LPSTR pCmdLine, int nCmdShow) {
   for (size_t i = 0; i < __argc; i++) {
     VulkanExample::args.push_back(__argv[i]);
   };
@@ -1380,8 +1389,8 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
 #elif defined(__ANDROID__)
 // Android entry point
-VulkanExample* vulkanExample;
-void android_main(android_app* state) {
+VulkanExample *vulkanExample;
+void android_main(android_app *state) {
   vulkanExample = new VulkanExample();
   state->userData = vulkanExample;
   state->onAppCmd = VulkanExample::handleAppCommand;
@@ -1394,9 +1403,9 @@ void android_main(android_app* state) {
 
 // Linux entry point with direct to display wsi
 // Direct to Displays (D2D) is used on embedded platforms
-VulkanExample* vulkanExample;
+VulkanExample *vulkanExample;
 static void handleEvent() {}
-int main(const int argc, const char* argv[]) {
+int main(const int argc, const char *argv[]) {
   for (size_t i = 0; i < argc; i++) {
     VulkanExample::args.push_back(argv[i]);
   };
@@ -1408,8 +1417,8 @@ int main(const int argc, const char* argv[]) {
   return 0;
 }
 #elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
-VulkanExample* vulkanExample;
-int main(const int argc, const char* argv[]) {
+VulkanExample *vulkanExample;
+int main(const int argc, const char *argv[]) {
   for (size_t i = 0; i < argc; i++) {
     VulkanExample::args.push_back(argv[i]);
   };
@@ -1424,13 +1433,13 @@ int main(const int argc, const char* argv[]) {
 #elif defined(__linux__)
 
 // Linux entry point
-VulkanExample* vulkanExample;
-static void handleEvent(const xcb_generic_event_t* event) {
+VulkanExample *vulkanExample;
+static void handleEvent(const xcb_generic_event_t *event) {
   if (vulkanExample != NULL) {
     vulkanExample->handleEvent(event);
   }
 }
-int main(const int argc, const char* argv[]) {
+int main(const int argc, const char *argv[]) {
   for (size_t i = 0; i < argc; i++) {
     VulkanExample::args.push_back(argv[i]);
   };
